@@ -1,8 +1,3 @@
-# Where find third party repos
-
-Good starting point is optee manifest https://github.com/OP-TEE/manifest/tree/master. Current version of optee manifest used by this project is v4.6.0.
-
-
 ## How to add a third-party repo in-tree (using `git subtree`)
 
 ```bash
@@ -21,8 +16,6 @@ git fetch tf-a
 
 # 3) Import the code (squashed history)
 git subtree add --prefix=third_party/tf-a tf-a master --squash
-
-git subtree add --prefix=third_party/u-boot u-boot v2024.01-rc1 --squash
 
 # 4) Update later when upstream changes
 git fetch tf-a
