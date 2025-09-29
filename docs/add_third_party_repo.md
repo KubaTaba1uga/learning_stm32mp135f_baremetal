@@ -6,6 +6,7 @@ mkdir -p third_party
 
 # 1) Make sure your working tree is clean
 git status
+
 # If you have changes:
 git add . && git commit -m "WIP"    # or stash them: git stash push -m "temp"
 

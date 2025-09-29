@@ -1,0 +1,2 @@
+#opt	Id	Name		Type		Device	Offset		Binary
+-	0x01	fsbl_boot	Binary		none	0x0		
