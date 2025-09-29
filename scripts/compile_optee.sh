@@ -8,8 +8,8 @@ cd third_party/optee-os/
 
 make $OPTEE_OS_COMMON_FLAGS
 
-mkdir ../../build
-cp out/third_party/optee-os/out/arm-plat-stm32mp1/core/tee.bin ../../build/
-cp tee-raw.bin ../../build/
-cp tee-*_v2.bin ../../build/
+mkdir -p ../../build
+cp ./out/arm-plat-stm32mp1/core/tee.bin ../../build/
+cp ./out/arm-plat-stm32mp1/core/tee-raw.bin ../../build/
+cp ./out/arm-plat-stm32mp1/core/tee-*_v2.bin ../../build/
 
