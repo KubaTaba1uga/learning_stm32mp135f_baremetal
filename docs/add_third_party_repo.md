@@ -2,7 +2,6 @@
 
 Good starting point is optee manifest https://github.com/OP-TEE/manifest/tree/master. Current version of optee manifest used by this project is v4.6.0.
 
-
 ## How to add a third-party repo in-tree (using `git subtree`)
 
 ```bash
@@ -20,21 +19,9 @@ git remote add tf-a https://review.trustedfirmware.org/TF-A/trusted-firmware-a.g
 git fetch tf-a
 
 # 3) Import the code (squashed history)
-git subtree add --prefix=third_party/tf-a tf-a master --squash
-
-git subtree add --prefix=third_party/u-boot u-boot v2024.01-rc1 --squash
+git subtree add --prefix=third_party/tf-a tf-a v2.9 --squash
 
 # 4) Update later when upstream changes
 git fetch tf-a
-git subtree pull --prefix=third_party/tf-a tf-a master --squash
-
-# 5) (optional) Push local changes back upstream
-git subtree push --prefix=third_party/tf-a tf-a my-feature-branch
+git subtree pull --prefix=third_party/tf-a tf-a v2.10 --squash
 ```
-
-### Notes
-
-* `--prefix` = folder where the dependency will live inside your repo.
-* `--squash` keeps history compact; omit it if you want full upstream history.
-* Always **commit or stash your work** before running `git subtree`.
-
