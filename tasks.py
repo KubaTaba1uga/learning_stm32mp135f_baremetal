@@ -12,8 +12,14 @@ from invoke import task
 #                Public API                   #
 ###############################################
 ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
-SRC_PATH = os.path.join(ROOT_PATH, "src")
+THIRD_PARTY_PATH = os.path.join(ROOT_PATH, "third_party")
 BUILD_PATH = os.path.join(ROOT_PATH, "build")
+TOOLCHAIN_PATH = os.path.join(
+    THIRD_PARTY_PATH,
+    "arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-linux-gnueabihf",
+    "bin",
+    "arm-none-linux-gnueabihf-",
+)
 
 
 @task
@@ -27,12 +33,10 @@ def install(c):
 
     _pr_info("Installing Dependencies...")
     try:
-            c.run(
-                """
-                  sudo apt-get install -y build-essential device-tree-compiler
-
+        result = c.run(
+            """
                   sudo apt-get update && sudo apt-get install -y \
-                    gcc-arm-none-eabi \
+                    build-essential device-tree-compiler \
                     g++ \
                     clang \
                     device-tree-compiler \
@@ -45,15 +49,14 @@ def install(c):
                     python3-pip \
                     bison \
             """,
-                warn=True,
-            )
+            warn=True,
+        )
+        if result.ok:
             _pr_info("Dependencies installed successfully.")
         else:
             _pr_error("Unable to install dependencies.")
-            return
     except Exception as e:
         _pr_error(f"Error installing dependencies: {e}")
-        return
 
 
 @task
@@ -94,6 +97,108 @@ def clean(c, bytecode=False, extra=""):
                 print(f"Removed directory {path}")
 
     _pr_info("Clean up completed.")
+
+
+@task
+def build_uboot(c):
+    _pr_info("Building uboot...")
+
+    env = {
+        "CROSS_COMPILE": TOOLCHAIN_PATH,
+        "DEVICE_TREE": "stm32mp135f-dk",
+    }
+    try:
+        with c.cd(os.path.join(THIRD_PARTY_PATH, "u-boot")):
+            _run_make(c, "stm32mp13_defconfig", env)
+            _run_make(c, "-j 2", env)
+            c.run(f"mkdir -p {BUILD_PATH}")
+            c.run(f"cp u-boot-nodtb.bin u-boot.dtb {BUILD_PATH}")
+
+    except Exception:
+        _pr_error("Building uboot failed")
+        raise
+
+    _pr_info("Building uboot completed")
+
+
+@task
+def build_optee(c):
+    _pr_info("Building optee os...")
+
+    env = {
+        "CROSS_COMPILE": TOOLCHAIN_PATH,
+        "CROSS_COMPILE_core": TOOLCHAIN_PATH,
+        "CROSS_COMPILE_ta_arm32": TOOLCHAIN_PATH,
+        "CFG_USER_TA_TARGETS": "ta_arm32",
+        "CFG_ARM64_core": "n",
+        "PLATFORM": "stm32mp1-135F_DK",
+        "CFG_TEE_CORE_LOG_LEVEL": "3",
+        "DEBUG": "0",
+        "CFG_IN_TREE_EARLY_TAS": "trusted_keys/f04a0fe7-1f5d-4b9b-abf7-619b85b4ce8c",
+        "CFG_SCP_FIRMWARE": os.path.join(THIRD_PARTY_PATH, "scp-firmware"),
+    }
+    try:
+        with c.cd(os.path.join(THIRD_PARTY_PATH, "optee-os")):
+            _run_make(c, "-j 2 all fip", env)
+            c.run(f"mkdir -p {BUILD_PATH}")
+            with c.cd(os.path.join("out", "arm-plat-stm32mp1", "core")):
+                c.run(f"cp tee.bin tee-raw.bin tee-*_v2.bin {BUILD_PATH}")
+
+    except Exception:
+        _pr_error("Building optee os failed")
+        raise
+
+    _pr_info("Building optee os completed")
+
+
+@task
+def build_tfa(c):
+    _pr_info("Building tf-a...")
+
+    TOOLCHAIN_PATH = "/home/taba1uga/Github/optee_bundle/build/../toolchains/aarch32/bin/arm-linux-gnueabihf-"
+    env = {
+        "CROSS_COMPILE": TOOLCHAIN_PATH,
+        "CC": str(TOOLCHAIN_PATH) + "gcc",
+        "LD": str(TOOLCHAIN_PATH) + "ld",
+        "BL32": os.path.join(BUILD_PATH, "tee-header_v2.bin"),
+        "BL32_EXTRA1": os.path.join(BUILD_PATH, "tee-pager_v2.bin"),
+        "BL32_EXTRA2": os.path.join(BUILD_PATH, "tee-pageable_v2.bin"),
+        "BL33": os.path.join(BUILD_PATH, "u-boot.bin"),
+        "BL33_CFG": os.path.join(BUILD_PATH, "u-boot.dtb"),
+        "ARM_ARCH_MAJOR": "7",
+        "ARCH": "aarch32",
+        "PLAT": "stm32mp1",
+        "DTB_FILE_NAME": "stm32mp135f-dk.dtb",
+        "AARCH32_SP": "optee",
+        "DEBUG": "0",
+        "LOG_LEVEL": "30",
+        "STM32MP15_OPTEE_RSV_SHM": "0",
+        "STM32MP_EMMC": "1",
+        "STM32MP_SDMMC": "1",
+        "STM32MP_RAW_NAND": "0",
+        "STM32MP_SPI_NAND": "0",
+        "STM32MP_SPI_NOR": "0",
+    }
+    try:
+        with c.cd(os.path.join(THIRD_PARTY_PATH, "tf-a")):
+            _run_make(c, "-j 2 all fip", env)
+            c.run(f"cp build/stm32mp1/*/fip.bin {BUILD_PATH}/fip.bin")
+            c.run(
+                f"cp build/stm32mp1/*/tf-a-stm32mp135f-dk.stm32 {BUILD_PATH}/tf-a-stm32mp135f-dk.stm32"
+            )
+
+    except Exception:
+        _pr_error("Building tf-a failed")
+        raise
+
+    _pr_info("Building tf-a completed")
+
+
+def _run_make(ctx, command, env):
+    ctx.run(
+        f"make {command} " + " ".join([f"{arg}={env[arg]}" for arg in env]),
+        env=env,
+    )
 
 
 ###############################################
