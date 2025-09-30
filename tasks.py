@@ -110,7 +110,7 @@ def build_uboot(c):
     try:
         with c.cd(os.path.join(THIRD_PARTY_PATH, "u-boot")):
             _run_make(c, "stm32mp13_defconfig", env)
-            _run_make(c, "-j 2", env)
+            _run_make(c, "-j 4 all", env)
             c.run(f"mkdir -p {BUILD_PATH}")
             c.run(f"cp u-boot-nodtb.bin u-boot.dtb {BUILD_PATH}")
 
@@ -139,7 +139,7 @@ def build_optee(c):
     }
     try:
         with c.cd(os.path.join(THIRD_PARTY_PATH, "optee-os")):
-            _run_make(c, "-j 2 all fip", env)
+            _run_make(c, "-j 4 all", env)
             c.run(f"mkdir -p {BUILD_PATH}")
             with c.cd(os.path.join("out", "arm-plat-stm32mp1", "core")):
                 c.run(f"cp tee.bin tee-raw.bin tee-*_v2.bin {BUILD_PATH}")
@@ -163,7 +163,7 @@ def build_tfa(c):
         "BL32": os.path.join(BUILD_PATH, "tee-header_v2.bin"),
         "BL32_EXTRA1": os.path.join(BUILD_PATH, "tee-pager_v2.bin"),
         "BL32_EXTRA2": os.path.join(BUILD_PATH, "tee-pageable_v2.bin"),
-        "BL33": os.path.join(BUILD_PATH, "u-boot.bin"),
+        "BL33": os.path.join(BUILD_PATH, "u-boot-nodtb.bin"),
         "BL33_CFG": os.path.join(BUILD_PATH, "u-boot.dtb"),
         "ARM_ARCH_MAJOR": "7",
         "ARCH": "aarch32",
@@ -181,7 +181,7 @@ def build_tfa(c):
     }
     try:
         with c.cd(os.path.join(THIRD_PARTY_PATH, "tf-a")):
-            _run_make(c, "-j 2 all fip", env)
+            _run_make(c, "-j 4 all fip", env)
             c.run(f"cp build/stm32mp1/*/fip.bin {BUILD_PATH}/fip.bin")
             c.run(
                 f"cp build/stm32mp1/*/tf-a-stm32mp135f-dk.stm32 {BUILD_PATH}/tf-a-stm32mp135f-dk.stm32"
@@ -192,13 +192,6 @@ def build_tfa(c):
         raise
 
     _pr_info("Building tf-a completed")
-
-
-def _run_make(ctx, command, env):
-    ctx.run(
-        f"make {command} " + " ".join([f"{arg}={env[arg]}" for arg in env]),
-        env=env,
-    )
 
 
 ###############################################
@@ -265,3 +258,10 @@ def _pr_error(message: str):
         pr_error("This is an error message.")
     """
     print(f"\033[91m[ERROR] {message}\033[0m")
+
+
+def _run_make(ctx, command, env):
+    ctx.run(
+        f"make {command} " + " ".join([f"{arg}={env[arg]}" for arg in env]),
+        env=env,
+    )
