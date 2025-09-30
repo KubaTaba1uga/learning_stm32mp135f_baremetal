@@ -155,7 +155,6 @@ def build_optee(c):
 def build_tfa(c):
     _pr_info("Building tf-a...")
 
-    TOOLCHAIN_PATH = "/home/taba1uga/Github/optee_bundle/build/../toolchains/aarch32/bin/arm-linux-gnueabihf-"
     env = {
         "CROSS_COMPILE": TOOLCHAIN_PATH,
         "CC": str(TOOLCHAIN_PATH) + "gcc",
@@ -182,6 +181,7 @@ def build_tfa(c):
     try:
         with c.cd(os.path.join(THIRD_PARTY_PATH, "tf-a")):
             _run_make(c, "-j 4 all fip", env)
+            c.run(f"mkdir -p {BUILD_PATH}")
             c.run(f"cp build/stm32mp1/*/fip.bin {BUILD_PATH}/fip.bin")
             c.run(
                 f"cp build/stm32mp1/*/tf-a-stm32mp135f-dk.stm32 {BUILD_PATH}/tf-a-stm32mp135f-dk.stm32"
@@ -192,6 +192,20 @@ def build_tfa(c):
         raise
 
     _pr_info("Building tf-a completed")
+
+
+@task
+def build(c):
+    _pr_info("Building...")
+    try:
+        build_optee(c)
+        build_uboot(c)
+        build_tfa(c)
+    except Exception:
+        _pr_error("Building failed")
+        raise
+
+    _pr_info("Building completed")
 
 
 ###############################################
