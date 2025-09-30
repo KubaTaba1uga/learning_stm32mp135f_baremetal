@@ -10,13 +10,22 @@ sudo parted -a optimal /dev/sda -- mkpart fip 768KiB 4864KiB
 
 build uboot:
 ```
-cd third_party/u-boot
-make stm32mp13_defconfig
-make -j 8 all
+bash scripts/compile_uboot.sh
 ```
 
 build optee:
 ```
-make PLATFORM=stm32mp1-135F_DK -j 8 tfa optee-os u-boot
+bash scripts/compile_optee.sh
 ```
 
+build tf-a:
+```
+bash scripts/compile_tfa.sh
+```
+
+flash to sdcard:
+```
+sudo dd if=build/tf-a-stm32mp135f-dk.stm32 of=/dev/disk/by-partlabel/fsbl1 bs=1K
+sudo dd if=build/tf-a-stm32mp135f-dk.stm32 of=/dev/disk/by-partlabel/fsbl2 bs=1K
+sudo dd if=build/fip.bin of=/dev/disk/by-partlabel/fip bs=1K
+```

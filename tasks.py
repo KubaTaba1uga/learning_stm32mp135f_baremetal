@@ -13,7 +13,6 @@ from invoke import task
 ###############################################
 ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
 SRC_PATH = os.path.join(ROOT_PATH, "src")
-OS_PATH = os.path.join(ROOT_PATH, "os")
 BUILD_PATH = os.path.join(ROOT_PATH, "build")
 
 
@@ -28,20 +27,32 @@ def install(c):
 
     _pr_info("Installing Dependencies...")
     try:
-        if _command_exists("pip"):
             c.run(
-                "pip install ansible lxml jmespath && "
-                "ansible-galaxy collection install devsec.hardening l3d.git "
-                "prometheus.prometheus grafana.grafana && "
-                "ansible-galaxy role install geerlingguy.docker",
+                """
+                  sudo apt-get install -y build-essential device-tree-compiler
+
+                  sudo apt-get update && sudo apt-get install -y \
+                    gcc-arm-none-eabi \
+                    g++ \
+                    clang \
+                    device-tree-compiler \
+                    make \
+                    libmbedtls-dev \
+                    nodejs \
+                    libssl-dev \
+                    python3-poetry \
+                    python3-sphinx \
+                    python3-pip \
+                    bison \
+            """,
                 warn=True,
             )
-            _pr_info("Ansible installed successfully.")
+            _pr_info("Dependencies installed successfully.")
         else:
-            _pr_error("'pip' command not found. Unable to install Ansible.")
+            _pr_error("Unable to install dependencies.")
             return
     except Exception as e:
-        _pr_error(f"Error installing Ansible: {e}")
+        _pr_error(f"Error installing dependencies: {e}")
         return
 
 
