@@ -177,6 +177,7 @@ def build_tfa(c):
         "STM32MP_RAW_NAND": "0",
         "STM32MP_SPI_NAND": "0",
         "STM32MP_SPI_NOR": "0",
+        "STM32MP_USB_PROGRAMMER": "1",
     }
     try:
         with c.cd(os.path.join(THIRD_PARTY_PATH, "tf-a")):
@@ -207,6 +208,25 @@ def build(c):
 
     _pr_info("Building completed")
 
+@task
+def clean_tfa(c):
+    with c.cd(os.path.join(THIRD_PARTY_PATH, "tf-a")):
+            c.run("make clean")
+            c.run("rm -rf build")
+
+@task
+def deploy_via_usb(c):
+    if not os.environ.get("STM32_PRG_PATH"):
+        raise ValueError("set STM32_PRG_PATH to path where")
+    
+    with c.cd(BUILD_PATH):    
+        c.run("""sudo $STM32_PRG_PATH/STM32_Programmer_CLI -c port=usb1 \
+                      -d tf-a-stm32mp135f-dk.stm32 0x1 -s 0x1           \
+                      -d fip.bin 0x3 -s 0x3                             
+        """)
+            
+
+        
 
 ###############################################
 #                Private API                  #
