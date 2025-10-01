@@ -95,9 +95,15 @@ def clean(c, bytecode=False, extra=""):
             elif os.path.isdir(path):
                 shutil.rmtree(path)
                 print(f"Removed directory {path}")
+    try:
+     clean_optee(c)
+     clean_uboot(c)
+     clean_tfa(c)
+    except Exception:
+        _pr_error("Cleaning failed")
+        raise
 
     _pr_info("Clean up completed.")
-
 
 @task
 def build_uboot(c):
@@ -214,6 +220,17 @@ def clean_tfa(c):
             c.run("make clean")
             c.run("rm -rf build")
 
+@task
+def clean_optee(c):
+    with c.cd(os.path.join(THIRD_PARTY_PATH, "optee-os")):
+            c.run("make clean")
+            c.run("rm -rf out")
+@task
+def clean_uboot(c):
+    with c.cd(os.path.join(THIRD_PARTY_PATH, "u-boot")):
+            c.run("make clean")
+            
+            
 @task
 def deploy_via_usb(c):
     if not os.environ.get("STM32_PRG_PATH"):
