@@ -96,14 +96,15 @@ def clean(c, bytecode=False, extra=""):
                 shutil.rmtree(path)
                 print(f"Removed directory {path}")
     try:
-     clean_optee(c)
-     clean_uboot(c)
-     clean_tfa(c)
+        clean_optee(c)
+        clean_uboot(c)
+        clean_tfa(c)
     except Exception:
         _pr_error("Cleaning failed")
         raise
 
     _pr_info("Clean up completed.")
+
 
 @task
 def build_uboot(c):
@@ -115,7 +116,7 @@ def build_uboot(c):
     }
     try:
         with c.cd(os.path.join(THIRD_PARTY_PATH, "u-boot")):
-            _run_make(c, "stm32mp13_defconfig", env)
+            # _run_make(c, "stm32mp13_defconfig", env)
             _run_make(c, "-j 4 all", env)
             c.run(f"mkdir -p {BUILD_PATH}")
             c.run(f"cp u-boot-nodtb.bin u-boot.dtb {BUILD_PATH}")
@@ -214,36 +215,40 @@ def build(c):
 
     _pr_info("Building completed")
 
+
 @task
 def clean_tfa(c):
     with c.cd(os.path.join(THIRD_PARTY_PATH, "tf-a")):
-            c.run("make clean")
-            c.run("rm -rf build")
+        c.run("make clean")
+        c.run("rm -rf build")
+
 
 @task
 def clean_optee(c):
     with c.cd(os.path.join(THIRD_PARTY_PATH, "optee-os")):
-            c.run("make clean")
-            c.run("rm -rf out")
+        c.run("make clean")
+        c.run("rm -rf out")
+
+
 @task
 def clean_uboot(c):
     with c.cd(os.path.join(THIRD_PARTY_PATH, "u-boot")):
-            c.run("make clean")
-            
-            
+        c.run("make clean")
+
+
 @task
 def deploy_via_usb(c):
     if not os.environ.get("STM32_PRG_PATH"):
         raise ValueError("set STM32_PRG_PATH to path where")
-    
-    with c.cd(BUILD_PATH):    
-        c.run("""sudo $STM32_PRG_PATH/STM32_Programmer_CLI -c port=usb1 \
+
+    with c.cd(BUILD_PATH):
+        c.run(
+            """sudo $STM32_PRG_PATH/STM32_Programmer_CLI -c port=usb1 \
                       -d tf-a-stm32mp135f-dk.stm32 0x1 -s 0x1           \
                       -d fip.bin 0x3 -s 0x3                             
-        """)
-            
+        """
+        )
 
-        
 
 ###############################################
 #                Private API                  #
