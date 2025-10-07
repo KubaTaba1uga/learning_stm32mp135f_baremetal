@@ -22,6 +22,7 @@ TOOLCHAIN_PATH = os.path.join(
     "arm-none-linux-gnueabihf-",
 )
 UBOOT_PATH = os.path.join(THIRD_PARTY_PATH, "u-boot")
+EXAMPLES_PATH = os.path.join(ROOT_PATH, "examples")
 
 
 @task
@@ -267,12 +268,27 @@ def build_tfa(c):
 
 
 @task
-def build(c):
+def build(c, examples=True):
     _pr_info("Building...")
     try:
         build_optee(c)
         build_uboot(c)
         build_tfa(c)
+
+        if examples:
+            for path in os.listdir(EXAMPLES_PATH):
+                example_dir = os.path.join(EXAMPLES_PATH, os.path.basename(path))                
+                with c.cd(example_dir):
+                    _pr_info(f"Building {path}...")
+                    build_dir = os.path.join(BUILD_PATH, os.path.basename(path))
+                    c.run(f"mkdir -p {build_dir}")
+                    c.run(
+                        f"meson setup --wipe --cross-file arm32-meson-cross-compile.txt {build_dir}"
+                    )
+                    c.run(f"meson compile -C {build_dir}")
+                    c.run(f"cp {build_dir}/{path} ")                    
+                    
+                    _pr_info(f"Building {path} completed")                    
     except Exception:
         _pr_error("Building failed")
         raise
