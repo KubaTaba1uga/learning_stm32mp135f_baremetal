@@ -268,7 +268,7 @@ def build_tfa(c):
 
 
 @task
-def build(c, examples=True):
+def build(c, examples=True, example=None):
     _pr_info("Building...")
     try:
         build_optee(c)
@@ -286,9 +286,12 @@ def build(c, examples=True):
                         f"meson setup --wipe --cross-file arm32-meson-cross-compile.txt {build_dir}"
                     )
                     c.run(f"meson compile -C {build_dir}")
-                    c.run(f"cp {build_dir}/{path} ")                    
-                    
-                    _pr_info(f"Building {path} completed")                    
+                    if example==path:
+                        c.run(f"cp {build_dir}/{path} {ROOT_PATH}/tftp/example.bin")
+                        _pr_info(f"Building {path} completed")                                            
+                        break
+                    _pr_info(f"Building {path} completed")                                        
+
     except Exception:
         _pr_error("Building failed")
         raise

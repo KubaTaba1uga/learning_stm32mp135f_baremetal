@@ -5,11 +5,9 @@ project('baremetal-uart', 'c',
   ],
 )
 
-# Your single-file “firmware”
-src = files('org.c')
+src = files('main.c')
 
-executable('example.bin', src,
-  # Bare-metal entry + placement; use a real linker script if you have one
+executable('debug_uart', src,
   link_args : [
     '-Wl,-e,_start',
     '-Wl,-Ttext=0xC0000000',

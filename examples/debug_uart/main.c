@@ -48,15 +48,58 @@ static void write_to_register(volatile uint32_t *reg, uint32_t value) {
   *reg = value;
 }
 
-int main(void) {
-  /* static const char sentence[] = "Hello my firend"; */
-  /* for (uint32_t i = 0; i < 8; i++) { */
-    while (!read_bit_in_register(USART_ISR, USART_ISR_TXE)) {
-    }
+void _start(void) {
+  while (!read_bit_in_register(USART_ISR, USART_ISR_TXE)) {
+  }
 
-  /*   write_to_register(USART_TDR, sentence[i]); */
-  /* } */
-  write_to_register(USART_TDR, 'A');
-  write_to_register(USART_TDR, 'A');
-  
+  write_to_register(USART_TDR, 'H');
+  while (!read_bit_in_register(USART_ISR, USART_ISR_TXE)) {
+  }
+
+  write_to_register(USART_TDR, 'E');
+
+  while (!read_bit_in_register(USART_ISR, USART_ISR_TXE)) {
+  }
+
+  write_to_register(USART_TDR, 'L');
+
+  while (!read_bit_in_register(USART_ISR, USART_ISR_TXE)) {
+  }
+
+  write_to_register(USART_TDR, 'L');
+
+  while (!read_bit_in_register(USART_ISR, USART_ISR_TXE)) {
+  }
+
+  write_to_register(USART_TDR, 'O');
+
+  while (!read_bit_in_register(USART_ISR, USART_ISR_TXE)) {
+  }
+
+  write_to_register(USART_TDR, ' ');
+
+  while (!read_bit_in_register(USART_ISR, USART_ISR_TXE)) {
+  }
+
+  write_to_register(USART_TDR, 'F');
+  while (!read_bit_in_register(USART_ISR, USART_ISR_TXE)) {
+  }
+
+  write_to_register(USART_TDR, 'R');
+  while (!read_bit_in_register(USART_ISR, USART_ISR_TXE)) {
+  }
+
+  write_to_register(USART_TDR, 'I');
+  while (!read_bit_in_register(USART_ISR, USART_ISR_TXE)) {
+  }
+
+  write_to_register(USART_TDR, 'E');
+  while (!read_bit_in_register(USART_ISR, USART_ISR_TXE)) {
+  }
+
+  write_to_register(USART_TDR, 'N');
+  while (!read_bit_in_register(USART_ISR, USART_ISR_TXE)) {
+  }
+
+  write_to_register(USART_TDR, 'D');
 }
