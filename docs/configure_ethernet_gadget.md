@@ -41,12 +41,12 @@ Example output:
 
 Assign a **static IP** to the Ethernet gadget interface on the host.
 Edit `/etc/network/interfaces` and add:
-
 ```ini
 allow-hotplug enxf8dc7a000001
 iface enxf8dc7a000001 inet static
     address 192.168.7.1/24
     gateway 192.168.7.1
+    hwaddress ether f8:dc:7a:00:00:01	
 ```
 
 Then restart the networking service to apply the changes:
