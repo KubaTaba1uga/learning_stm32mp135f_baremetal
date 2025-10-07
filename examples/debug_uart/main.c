@@ -48,12 +48,15 @@ static void write_to_register(volatile uint32_t *reg, uint32_t value) {
   *reg = value;
 }
 
-void _start(void) {
-  static const char sentence[] = "Hello my firend";
-  for (uint32_t i = 0; i < 8; i++) {
+int main(void) {
+  /* static const char sentence[] = "Hello my firend"; */
+  /* for (uint32_t i = 0; i < 8; i++) { */
     while (!read_bit_in_register(USART_ISR, USART_ISR_TXE)) {
     }
 
-    write_to_register(USART_TDR, sentence[i]);
-  }
+  /*   write_to_register(USART_TDR, sentence[i]); */
+  /* } */
+  write_to_register(USART_TDR, 'A');
+  write_to_register(USART_TDR, 'A');
+  
 }

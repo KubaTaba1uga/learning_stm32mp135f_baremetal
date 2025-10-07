@@ -74,26 +74,7 @@ Hello friend
 
 ---
 
-## ⚙️ 4. Configure the STM32MP Board (U-Boot)
-
-If you see:
-
-```
-*** ERROR: `serverip' not set
-```
-
-You need to define both the **server IP** (host) and the **device IP** (board).
-
-Example configuration:
-
-```bash
-STM32MP> env set serverip 192.168.7.1
-STM32MP> env set ipaddr 192.168.7.2
-```
-
----
-
-## 🚀 5. Transfer File via TFTP
+## 🚀 4. Transfer File via TFTP
 
 Run TFTP to load the test file into RAM.
 Avoid reserved memory addresses like `0x81000000` — use a safe one such as `0xC0000000`.
@@ -117,7 +98,7 @@ Bytes transferred = 14 (e hex)
 
 ---
 
-## 🔍 6. Verify Memory Content
+## 🔍 5. Verify Memory Content
 
 Dump memory to confirm the file was received correctly:
 
