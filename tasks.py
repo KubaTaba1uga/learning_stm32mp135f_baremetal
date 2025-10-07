@@ -131,6 +131,7 @@ def build_uboot(c, is_ethernet_gadget=True):
     }
     config = {}
     uboot_env = {}
+
     if is_ethernet_gadget:
         config["CONFIG_CMD_BIND"] = True
         config["CONFIG_USB_ETHER"] = True
@@ -138,10 +139,13 @@ def build_uboot(c, is_ethernet_gadget=True):
         config["CONFIG_USB_ETH_RNDIS"] = False
         config["CONFIG_USBNET_DEV_ADDR"] = "de:ad:be:ef:00:01"
         config["CONFIG_USBNET_HOST_ADDR"] = "de:ad:be:ef:00:00"
+
         uboot_env["ethact"] = "usb_ether"
         uboot_env["usbnet_devaddr"] = "f8:dc:7a:00:00:02"
         uboot_env["usbnet_hostaddr"] = "f8:dc:7a:00:00:01"
         uboot_env["bootcmd"] = "bind /soc/usb@49000000 usb_ether; dhcp"
+        uboot_env["ipaddr"] = "192.168.7.2"
+        uboot_env["serverip"] = "192.168.7.1"
 
     try:
         with tempfile.NamedTemporaryFile(
