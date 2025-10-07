@@ -5,6 +5,7 @@ import glob
 import os
 import shutil
 import subprocess
+import tempfile
 
 from invoke import task
 
@@ -20,6 +21,7 @@ TOOLCHAIN_PATH = os.path.join(
     "bin",
     "arm-none-linux-gnueabihf-",
 )
+UBOOT_PATH = os.path.join(THIRD_PARTY_PATH, "u-boot")
 
 
 @task
@@ -48,6 +50,7 @@ def install(c):
                     python3-sphinx \
                     python3-pip \
                     bison \
+                    xxd   \
             """,
             warn=True,
         )
@@ -107,23 +110,74 @@ def clean(c, bytecode=False, extra=""):
 
 
 @task
-def build_uboot(c):
+def build_uboot(c, is_ethernet_gadget=True):
+    """
+    ❯ cat third_party/u-boot/.config | grep ENV_FILE
+    CONFIG_USE_DEFAULT_ENV_FILE=y
+    CONFIG_DEFAULT_ENV_FILE="asdad"
+
+
+    CONFIG_USE_DEFAULT_ENV_FILE=y
+    CONFIG_DEFAULT_ENV_FILE=kupaduop
+
+
+
+    """
     _pr_info("Building uboot...")
 
     env = {
         "CROSS_COMPILE": TOOLCHAIN_PATH,
         "DEVICE_TREE": "stm32mp135f-dk",
     }
-    try:
-        with c.cd(os.path.join(THIRD_PARTY_PATH, "u-boot")):
-            # _run_make(c, "stm32mp13_defconfig", env)
-            _run_make(c, "-j 4 all", env)
-            c.run(f"mkdir -p {BUILD_PATH}")
-            c.run(f"cp u-boot-nodtb.bin u-boot.dtb {BUILD_PATH}")
+    config = {}
+    uboot_env = {}
+    if is_ethernet_gadget:
+        config["CONFIG_CMD_BIND"] = True
+        config["CONFIG_USB_ETH_CDC"] = True
+        config["CONFIG_USBNET_DEV_ADDR"] = "de:ad:be:ef:00:01"
+        config["CONFIG_USBNET_HOST_ADDR"] = "de:ad:be:ef:00:00"
+        uboot_env["mycustomvar"] = "Mycustomvalue"
 
-    except Exception:
+    try:
+        with tempfile.NamedTemporaryFile(
+            "w", dir=UBOOT_PATH, prefix="env", suffix=".txt", delete_on_close=False
+        ) as fp:
+            if len(uboot_env) > 0:
+                config["CONFIG_USE_DEFAULT_ENV_FILE"] = True
+                config["CONFIG_ENV_IS_DEFAULT"] = True
+                config["CONFIG_ENV_IS_NOWHERE"] = True
+                config["CONFIG_ENV_IS_IN_MMC"] = False
+                config["CONFIG_USE_ENV_MMC_PARTITION"] = False
+                config["CONFIG_DEFAULT_ENV_FILE"] = str(fp.name)
+                config["CONFIG_ENV_SOURCE_FILE"] = str(fp.name)
+
+                for key, value in uboot_env.items():
+                    fp.write(f"{key}={value}\n")
+
+            fp.close()
+
+            with c.cd(UBOOT_PATH):
+                _run_make(c, "stm32mp13_defconfig", env)
+
+                for key, value in config.items():
+                    if value is True:
+                        c.run(f"scripts/config --enable {key}")
+
+                    if value is False:
+                        c.run(f"scripts/config --disable {key}")
+
+                    if isinstance(value, str):
+                        c.run(f'scripts/config --set-str {key} "{value}"')
+
+                _run_make(c, "-j 4 all", env)
+                c.run(f"mkdir -p {BUILD_PATH}")
+                c.run(f"cp u-boot-nodtb.bin u-boot.dtb {BUILD_PATH}")
+
+    except Exception as err:
         _pr_error("Building uboot failed")
-        raise
+
+        print(err)
+        raise err
 
     _pr_info("Building uboot completed")
 
@@ -139,7 +193,7 @@ def build_optee(c):
         "CFG_USER_TA_TARGETS": "ta_arm32",
         "CFG_ARM64_core": "n",
         "PLATFORM": "stm32mp1-135F_DK",
-        "CFG_TEE_CORE_LOG_LEVEL": "3",
+        "CFG_TEE_CORE_LOG_LEVEL": "1",
         "DEBUG": "0",
         "CFG_IN_TREE_EARLY_TAS": "trusted_keys/f04a0fe7-1f5d-4b9b-abf7-619b85b4ce8c",
         "CFG_SCP_FIRMWARE": os.path.join(THIRD_PARTY_PATH, "scp-firmware"),
@@ -248,6 +302,27 @@ def deploy_via_usb(c):
                       -d fip.bin 0x3 -s 0x3                             
         """
         )
+
+
+@task
+def deploy_to_sdcard(c, dev="sda"):
+    with c.cd(BUILD_PATH):
+        # c.run("sudo dd if=uboot.env of=/dev/sdb bs=512 seek=18432 conv=notrunc")
+        if not os.path.exists("/dev/disk/by-partlabel/fsbl1"):
+            raise ValueError("No /dev/disk/by-partlabel/fsbl1")
+        if not os.path.exists("/dev/disk/by-partlabel/fsbl2"):
+            raise ValueError("No /dev/disk/by-partlabel/fsbl2")
+        if not os.path.exists("/dev/disk/by-partlabel/fip"):
+            raise ValueError("No /dev/disk/by-partlabel/fip")
+
+        c.run(
+            "sudo dd if=tf-a-stm32mp135f-dk.stm32 of=/dev/disk/by-partlabel/fsbl1 bs=1K conv=fsync"
+        )
+        c.run(
+            "sudo dd if=tf-a-stm32mp135f-dk.stm32 of=/dev/disk/by-partlabel/fsbl2 bs=1K conv=fsync"
+        )
+        c.run("sudo dd if=fip.bin of=/dev/disk/by-partlabel/fip bs=1K conv=fsync")
+        c.run("sudo sync")
 
 
 ###############################################
