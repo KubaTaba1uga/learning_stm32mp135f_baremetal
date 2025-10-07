@@ -163,7 +163,7 @@ def build_uboot(c, is_ethernet_gadget=True):
                 for key, value in uboot_env.items():
                     fp.write(f"{key}={value}\n")
 
-            fp.close()
+            fp.close()  # This line is required to save content
 
             with c.cd(UBOOT_PATH):
                 _run_make(c, "stm32mp13_defconfig", env)
@@ -171,21 +171,20 @@ def build_uboot(c, is_ethernet_gadget=True):
                 for key, value in config.items():
                     if value is True:
                         c.run(f"scripts/config --enable {key}")
-
-                    if value is False:
+                    elif value is False:
                         c.run(f"scripts/config --disable {key}")
-
-                    if isinstance(value, str):
+                    elif isinstance(value, str):
                         c.run(f'scripts/config --set-str {key} "{value}"')
+                    else:
+                        raise ValueError("Unsupported %s:%s" % (key, value))
 
                 _run_make(c, "-j 4 all", env)
                 c.run(f"mkdir -p {BUILD_PATH}")
                 c.run(f"cp u-boot-nodtb.bin u-boot.dtb {BUILD_PATH}")
 
     except Exception as err:
-        _pr_error("Building uboot failed")
-
         print(err)
+        _pr_error("Building uboot failed")
         raise err
 
     _pr_info("Building uboot completed")
