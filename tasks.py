@@ -288,7 +288,7 @@ def build(c, examples=True, example=None):
                     )
                     c.run(f"meson compile -C {build_dir}")
                     if example==path:
-                        c.run(f"cp {build_dir}/{path} {ROOT_PATH}/tftp/example.bin")
+                        c.run(f"arm-none-eabi-objcopy -O binary {build_dir}/{path} {ROOT_PATH}/tftp/example.bin")
                         c.run(f"chmod 777 {ROOT_PATH}/tftp/example.bin")                        
                         _pr_info(f"Building {path} completed")                                            
                         break
