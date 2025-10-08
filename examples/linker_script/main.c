@@ -56,4 +56,8 @@ int main(void) {
   while (!read_bit_in_register(USART_ISR, USART_ISR_TXE)) {
   }
   write_to_register(USART_TDR, '-');
+
+  while (1) {
+    
+      }
 }

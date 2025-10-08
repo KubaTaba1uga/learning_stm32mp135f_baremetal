@@ -5,7 +5,7 @@ project('linker-script', 'c',
   ],
 )
 
-src = files('startup.s', 'main.c')
+src = files('main.c')
 
 executable('linker_script', src,
   link_args : [
