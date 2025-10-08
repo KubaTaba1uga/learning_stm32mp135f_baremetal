@@ -5,20 +5,12 @@ project('baremetal-uart', 'c',
   ],
 )
 
-executable('debug_uart_s', files('main.s'),
-  link_args : [
-    # '-Wl,-e,_Reset',
-    '-Wl,-T../../examples/debug_uart/script.ld',
-    '-Wl,--build-id=none',
-    '-lgcc',
-  ],
-  install : false
-)
+ldscript = join_paths(meson.current_source_dir(), 'script.ld')
 
-executable('debug_uart_c', files('main.c'),
+executable('debug_uart', files('main.c'),
   link_args : [
     # '-Wl,-e,_Reset',
-    '-Wl,-T../../examples/debug_uart/script.ld',
+    '-Wl,-T' + ldscript,
     '-Wl,--build-id=none',
     '-lgcc',
   ],

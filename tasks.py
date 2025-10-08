@@ -23,7 +23,7 @@ TOOLCHAIN_PATH = os.path.join(
 )
 UBOOT_PATH = os.path.join(THIRD_PARTY_PATH, "u-boot")
 EXAMPLES_PATH = os.path.join(ROOT_PATH, "examples")
-
+SHARED_PATH = os.path.join(ROOT_PATH, "shared")
 
 @task
 def install(c):
@@ -275,25 +275,31 @@ def build(c, examples=True, example=None):
           build_optee(c)
           build_uboot(c)
           build_tfa(c)
-
+          
         if examples:
-            for path in os.listdir(EXAMPLES_PATH):
+            examples_paths = os.listdir(EXAMPLES_PATH)
+            if example:
+                examples_paths = [path for path in examples_paths if path==example]
+
+            for path in examples_paths:
                 example_dir = os.path.join(EXAMPLES_PATH, os.path.basename(path))                
                 with c.cd(example_dir):
                     _pr_info(f"Building {path}...")
                     build_dir = os.path.join(BUILD_PATH, os.path.basename(path))
                     c.run(f"mkdir -p {build_dir}")
                     c.run(
-                        f"meson setup --wipe --cross-file arm32-meson-cross-compile.txt {build_dir}"
+                        f"meson setup --wipe --cross-file {os.path.join(SHARED_PATH, 'armv7a-cross-compile-meson.txt')} {build_dir}"
                     )
-                    c.run(f"meson compile -C {build_dir}")
-                    if example==path:
-                        c.run(f"arm-none-eabi-objcopy -O binary {build_dir}/{path} {ROOT_PATH}/tftp/example.bin")
-                        c.run(f"chmod 777 {ROOT_PATH}/tftp/example.bin")                        
-                        _pr_info(f"Building {path} completed")                                            
-                        break
-                    _pr_info(f"Building {path} completed")
+                    
+                c.run(f"meson compile -C {build_dir}")
+                    
+                if example is not None:
+                    c.run(f"arm-none-eabi-objcopy -O binary {build_dir}/{path} {ROOT_PATH}/tftp/example.bin")
+                c.run(f"chmod 777 {ROOT_PATH}/tftp/example.bin")
+                    
+        _pr_info(f"Building {path} completed")
 
+                    
     except Exception:
         _pr_error("Building failed")
         raise

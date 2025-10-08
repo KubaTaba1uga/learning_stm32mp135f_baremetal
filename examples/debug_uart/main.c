@@ -92,6 +92,5 @@ void _Reset(void) {
   write_to_register(USART_TDR, 'D');
   
   while (1) {
-  }
-  
+  }  
 }

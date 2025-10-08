@@ -7,9 +7,11 @@ project('linker-script', 'c',
 
 src = files('main.c')
 
+ldscript = join_paths(meson.current_source_dir(), 'linker.ld')
+
 executable('linker_script', src,
   link_args : [
-    '-Wl,--script=../../examples/linker_script/linker.ld',
+    '-Wl,-T' + ldscript,
     '-lgcc',    
   ],
   install : false
