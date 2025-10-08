@@ -1,0 +1,22 @@
+[constants]
+tc = '/usr/bin/arm-none-eabi-'
+
+[binaries]
+c       = tc + 'gcc'
+ar      = tc + 'gcc-ar'
+strip   = tc + 'strip'
+objcopy = tc + 'objcopy'
+objdump = tc + 'objdump'
+# (optional) size = tc + 'size'
+# (optional) gdb  = tc + 'gdb'
+
+[built-in options]
+c_args      = ['-mcpu=cortex-a7','-marm','-Os','-ffreestanding','-fno-builtin','-fno-pic','-fno-pie', '-no-pie']
+c_link_args = ['-nostdlib','-nostartfiles','-Wl,-no-pie']
+
+[host_machine]
+system = 'none'
+kernel = 'none'
+cpu_family = 'arm'
+cpu = 'armv7a'
+endian = 'little'
