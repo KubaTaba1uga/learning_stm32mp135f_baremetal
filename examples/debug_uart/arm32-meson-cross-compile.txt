@@ -1,6 +1,5 @@
-# cross_arm_baremetal.ini
 [constants]
-tc = '/home/taba1uga/Github/learning_stm32mp135f_baremetal/third_party/arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-linux-gnueabihf/bin/arm-none-linux-gnueabihf-'
+tc = '/usr/bin/arm-none-eabi-'
 
 [binaries]
 c       = tc + 'gcc'
@@ -12,9 +11,7 @@ objdump = tc + 'objdump'
 # (optional) gdb  = tc + 'gdb'
 
 [built-in options]
-# Compile flags: freestanding, Cortex-A7, no PIC
 c_args      = ['-mcpu=cortex-a7','-marm','-Os','-ffreestanding','-fno-builtin','-fno-pic']
-# Link flags: no libc/startup, no PIE (avoid ELF interpreter)
 c_link_args = ['-nostdlib','-nostartfiles','-Wl,-no-pie']
 
 [host_machine]

@@ -271,9 +271,10 @@ def build_tfa(c):
 def build(c, examples=True, example=None):
     _pr_info("Building...")
     try:
-        build_optee(c)
-        build_uboot(c)
-        build_tfa(c)
+        if example is None:
+          build_optee(c)
+          build_uboot(c)
+          build_tfa(c)
 
         if examples:
             for path in os.listdir(EXAMPLES_PATH):
@@ -288,9 +289,10 @@ def build(c, examples=True, example=None):
                     c.run(f"meson compile -C {build_dir}")
                     if example==path:
                         c.run(f"cp {build_dir}/{path} {ROOT_PATH}/tftp/example.bin")
+                        c.run(f"chmod 777 {ROOT_PATH}/tftp/example.bin")                        
                         _pr_info(f"Building {path} completed")                                            
                         break
-                    _pr_info(f"Building {path} completed")                                        
+                    _pr_info(f"Building {path} completed")
 
     except Exception:
         _pr_error("Building failed")
