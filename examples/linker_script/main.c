@@ -10,8 +10,7 @@ This example is about creating minimal linker script working on STM32MP135.
 
 From manual we can read that DDR memory start at 0xC0000000 and end at
  0xE0000000. Our goal is to put all program to DDR and start it there.
-
-SRAM1 start at 0x30000000 and end at 0x3004000.
+We pick 0xC0300000 in case uboot uses some data rigth after 0xC0000000.
 
 **************************************************************************/
 ///
@@ -40,6 +39,8 @@ static void write_to_register(volatile uint32_t *reg, uint32_t value) {
   *reg = value;
 }
 
+// By using data from .rodata section we
+// confirm that linker script is working properly
 const char word[] = "Hello friend";
 
 int main(void) {
@@ -47,7 +48,7 @@ int main(void) {
   }
   write_to_register(USART_TDR, '-');
 
-  for (int32_t i = 0; word[i]!=0; i++) {
+  for (int32_t i = 0; word[i] != 0; i++) {
     while (!read_bit_in_register(USART_ISR, USART_ISR_TXE)) {
     }
     write_to_register(USART_TDR, word[i]);
@@ -58,6 +59,5 @@ int main(void) {
   write_to_register(USART_TDR, '-');
 
   while (1) {
-    
-      }
+  }
 }
