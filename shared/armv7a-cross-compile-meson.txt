@@ -14,8 +14,8 @@ c_args      = ['-mcpu=cortex-a7','-marm','-Os','-ffreestanding','-fno-builtin','
 c_link_args = ['-nostdlib','-nostartfiles','-Wl,-no-pie']
 
 [host_machine]
-system = 'none'
+system = 'bare-metal'
 kernel = 'none'
 cpu_family = 'arm'
-cpu = 'armv7a'
+cpu = 'cortex-a7'
 endian = 'little'

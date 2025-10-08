@@ -81,8 +81,17 @@ def clean(c, bytecode=False, extra=""):
         inv clean --bytecode
         inv clean --extra='**/*.log'
     """
-    patterns = ["build/*", "**/*~*", "**/*#*", "*~*", "*#*"]
-
+    patterns = [
+      "build/*",
+      "*/*~*",
+      "*/#*",
+      "**/*~*",
+      "**/*#*",
+      "*~*",
+      "*#*",
+      "**/.#*"   
+    ]
+    
     if bytecode:
         patterns.append("**/*.pyc")
     if extra:
@@ -93,7 +102,7 @@ def clean(c, bytecode=False, extra=""):
 
         # Use glob to find files recursively and remove each one
         for path in glob.glob(pattern, recursive=True):
-            if os.path.isfile(path):
+            if os.path.isfile(path) or os.path.islink(path):
                 os.remove(path)
                 print(f"Removed file {path}")
             elif os.path.isdir(path):
