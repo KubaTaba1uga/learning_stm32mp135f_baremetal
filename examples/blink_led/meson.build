@@ -5,7 +5,7 @@ project('blink-led', 'c',
   ],
 )
 
-src = files('main.c')
+src = files('startup.S', 'main.c')
 
 ldscript = join_paths(meson.current_source_dir(), 'script.ld')
 

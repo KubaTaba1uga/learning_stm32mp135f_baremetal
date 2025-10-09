@@ -7,17 +7,22 @@
                                 BLINK LED
 
 This example is about blinking a led connected to GPIO2 which is pin 2 on 40pin
-expansion header.
-
-GPIO2 maps to PH6 which means GPIOH pin 6.
+expansion header. GPIO2 maps to PH6 which means GPIOH pin 6.
 
 GPIOH is connected to ABH4 so first thing to do is to enable clock for GPIOH via
 RCC on ABH4.
 
+In order to enable a GPIO peripheral, it should be enabled (clocked) via the RCC
+(Reset and Clock Control) unit. In the datasheet section 10.8.137 we find that
+the AHB4ENSETR (AHB1 peripheral clock enable set register) is responsible to
+turn GPIO banks on or off.
 
+Once this is done we should set mode for pin 6 to output so we can drive led.
+To set pin 6 to output we need to write 1 on 6th bit on 11.4.1 GPIOH mode
+register.
 
-In order to enable a GPIO peripheral, it should be enabled (clocked) via the RCC (Reset and Clock Control) unit. In the datasheet section 10.8.137 we find that the AHB4ENSETR (AHB1 peripheral clock enable set register) is responsible to turn GPIO banks on or off.
-
+Then to drive pin 6 high we write 1 to 6th bit of GPIOH bit set/reset register.
+To drive pin 6 low we write 22nd bit of GPIOH bit set/reset register.
 
 **************************************************************************/
 ///
@@ -41,55 +46,26 @@ In order to enable a GPIO peripheral, it should be enabled (clocked) via the RCC
 /* 11.4.7 GPIOH bit set/reset register */
 #define GPIOH_BSRR  (*(volatile uint32_t *)(GPIOH_BASE + 0x18))
 
+void wait() { uint32_t i = 0x10000000; while (i--) {(void)i;}}
 
 int main(void) {
-
-  // Enable GPIOH clock (bit 7)  
+  // Enable GPIOH clock (bit 7)
   RCC_MP_NS_AHB4ENSETR = (1U << 7);
 
-  // 2) PH6: output (01b at bits 13:12), no pull (00b at bits 13:12)
+  // Set pin mode for output (01b at bits 13:12), no pull (00b at bits 13:12)
   GPIOH_MODER = (GPIOH_MODER & ~(3U << (6*2))) | (1U << (6*2));
-  
-  /* Turn off   */
-  GPIOH_BSRR = (1U << (6 + 16));
-  
-  if (RCC_MP_NS_AHB4ENSETR & (1U << 7)) {
-    write_to_uart('Y');
-  } else {
-    write_to_uart('N');
-  }
-  /* if (RCC_MP_NS_AHB4ENSETR & (1U << 7)) { */
-  /*   USART_TDR = 'Y'; */
-  /* } else { */
-  /*   USART_TDR = 'N'; */
-  /* } */
 
-  /* // Disable GPIOH clock (bit 7) */
-  RCC_MP_NS_AHB4ENCLRR = (1U << 7);
-
-  if (RCC_MP_NS_AHB4ENSETR & (1U << 7)) {
-    write_to_uart('Y');
-  } else {
-    write_to_uart('N');
+  while (1) {
+    // Drive pin high
+    GPIOH_BSRR = (1U << 6);
+    write_to_uart('H');
+    wait();
+    
+    // Drive pin low
+    GPIOH_BSRR = (1U << (6 + 16));
+    write_to_uart('L');      
+    wait();
   }
 
-  GPIOH_BSRR = (1U << 6);
-  
-  while(1){
-  }
+  return 0;  
 }
-
-/* __attribute__((naked)) void _start(void) { */
-/*     __asm volatile ( */
-/*         "ldr r0, =_stack_top \n" */
-/*         "mov sp, r0          \n" */
-/*         "bl  main            \n" */
-/*         "b   .               \n" */
-/*     ); */
-/* } */
-
-
-/* void _start(void){ */
-/*   asm volatile("ldr r0, =_stack_top; mov sp, r0;"); */
-/*   main()  ; */
-/*   } */

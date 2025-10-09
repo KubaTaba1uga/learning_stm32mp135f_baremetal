@@ -10,7 +10,7 @@ objcopy = tc + 'objcopy'
 objdump = tc + 'objdump'
 
 [built-in options]
-c_args      = ['-mcpu=cortex-a7','-marm','-Os','-ffreestanding','-fno-builtin','-fno-pic']
+c_args      = ['-mcpu=cortex-a7','-marm','-O0','-fno-optimize-sibling-calls','-fno-inline','-ffreestanding','-fno-builtin','-fno-pic','-fno-common']
 c_link_args = ['-nostdlib','-nostartfiles','-Wl,-no-pie']
 
 [host_machine]
