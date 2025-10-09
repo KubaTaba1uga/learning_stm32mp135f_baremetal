@@ -13,6 +13,8 @@ FR1. --Clocking & Reset--
 
 */
 
+
+
 struct UartDriver {
   char hid[8];        // Human readable id
   uint32_t base_addr; // Base address of memory mapped io
