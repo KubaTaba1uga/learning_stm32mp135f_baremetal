@@ -5,9 +5,9 @@ project('linker-script', 'c',
   ],
 )
 
-src = files('startup.s', 'main.c')
+src = files('main.c')
 
-ldscript = join_paths(meson.current_source_dir(), 'script.ld')
+ldscript = join_paths(meson.current_source_dir(), 'linker.ld')
 
 executable('linker_script', src,
   link_args : [
