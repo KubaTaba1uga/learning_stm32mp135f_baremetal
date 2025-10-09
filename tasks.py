@@ -23,7 +23,7 @@ TOOLCHAIN_PATH = os.path.join(
 )
 UBOOT_PATH = os.path.join(THIRD_PARTY_PATH, "u-boot")
 EXAMPLES_PATH = os.path.join(ROOT_PATH, "examples")
-
+SHARED_PATH = os.path.join(ROOT_PATH, "shared")
 
 @task
 def install(c):
@@ -81,8 +81,17 @@ def clean(c, bytecode=False, extra=""):
         inv clean --bytecode
         inv clean --extra='**/*.log'
     """
-    patterns = ["build/*", "**/*~*", "**/*#*", "*~*", "*#*"]
-
+    patterns = [
+      "build/*",
+      "*/*~*",
+      "*/#*",
+      "**/*~*",
+      "**/*#*",
+      "*~*",
+      "*#*",
+      "**/.#*"   
+    ]
+    
     if bytecode:
         patterns.append("**/*.pyc")
     if extra:
@@ -93,7 +102,7 @@ def clean(c, bytecode=False, extra=""):
 
         # Use glob to find files recursively and remove each one
         for path in glob.glob(pattern, recursive=True):
-            if os.path.isfile(path):
+            if os.path.isfile(path) or os.path.islink(path):
                 os.remove(path)
                 print(f"Removed file {path}")
             elif os.path.isdir(path):
@@ -145,7 +154,7 @@ def build_uboot(c, is_ethernet_gadget=True):
         uboot_env["usbnet_devaddr"] = "f8:dc:7a:00:00:02"
         uboot_env["usbnet_hostaddr"] = "f8:dc:7a:00:00:01"
         uboot_env["bootcmd"] = (
-            "bind /soc/usb@49000000 usb_ether; tftp 0xC0000000 example.bin; go 0xC0000000"
+            "bind /soc/usb@49000000 usb_ether; tftp 0xC0300000 example.bin; go 0xC0300000"
         )
         uboot_env["serverip"] = "192.168.7.1"
         uboot_env["ipaddr"] = "192.168.7.2"
@@ -271,27 +280,35 @@ def build_tfa(c):
 def build(c, examples=True, example=None):
     _pr_info("Building...")
     try:
-        build_optee(c)
-        build_uboot(c)
-        build_tfa(c)
-
+        if example is None:
+          build_optee(c)
+          build_uboot(c)
+          build_tfa(c)
+          
         if examples:
-            for path in os.listdir(EXAMPLES_PATH):
+            examples_paths = os.listdir(EXAMPLES_PATH)
+            if example:
+                examples_paths = [path for path in examples_paths if path==example]
+
+            for path in examples_paths:
                 example_dir = os.path.join(EXAMPLES_PATH, os.path.basename(path))                
                 with c.cd(example_dir):
                     _pr_info(f"Building {path}...")
                     build_dir = os.path.join(BUILD_PATH, os.path.basename(path))
                     c.run(f"mkdir -p {build_dir}")
                     c.run(
-                        f"meson setup --wipe --cross-file arm32-meson-cross-compile.txt {build_dir}"
+                        f"meson setup --wipe --cross-file {os.path.join(SHARED_PATH, 'armv7a-cross-compile-meson.txt')} {build_dir}"
                     )
-                    c.run(f"meson compile -C {build_dir}")
-                    if example==path:
-                        c.run(f"cp {build_dir}/{path} {ROOT_PATH}/tftp/example.bin")
-                        _pr_info(f"Building {path} completed")                                            
-                        break
-                    _pr_info(f"Building {path} completed")                                        
+                    
+                c.run(f"meson compile -C {build_dir}")
+                    
+                if example is not None:
+                    c.run(f"arm-none-eabi-objcopy -O binary {build_dir}/{path} {ROOT_PATH}/tftp/example.bin")
+                c.run(f"chmod 777 {ROOT_PATH}/tftp/example.bin")
+                    
+        _pr_info(f"Building {path} completed")
 
+                    
     except Exception:
         _pr_error("Building failed")
         raise

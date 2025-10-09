@@ -5,14 +5,12 @@ project('baremetal-uart', 'c',
   ],
 )
 
-src = files('main.c')
-
-executable('debug_uart', src,
+executable('debug_uart', files('main.c'),
   link_args : [
-    '-Wl,-e,_start',
-    '-Wl,-Ttext=0xC0000000',
+    '-Wl,-e,main',
     '-Wl,--build-id=none',
     '-lgcc',
   ],
   install : false
 )
+
