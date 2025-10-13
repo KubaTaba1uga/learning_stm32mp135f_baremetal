@@ -52,6 +52,7 @@ def install(c):
                     python3-pip \
                     bison \
                     xxd   \
+                    stlink-tools
             """,
             warn=True,
         )
