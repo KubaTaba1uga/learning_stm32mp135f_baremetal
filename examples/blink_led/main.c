@@ -6,23 +6,25 @@
 
                                 BLINK LED
 
-This example is about blinking a led connected to GPIO2 which is pin 2 on 40pin
-expansion header. GPIO2 maps to PH6 which means GPIOH pin 6.
+Example demonstrates basic GPIO control on STM32MP135 by enabling the GPIOH
+clock, configuring PH6 as an output, and toggling it to blink an LED while
+sending status characters over UART.
 
-GPIOH is connected to ABH4 so first thing to do is to enable clock for GPIOH via
-RCC on ABH4.
+NOTES:
+  GPIOH is connected to ABH4 so first thing to do is to enable clock for GPIOH
+  via RCC on ABH4.
 
-In order to enable a GPIO peripheral, it should be enabled (clocked) via the RCC
-(Reset and Clock Control) unit. In the datasheet section 10.8.137 we find that
-the AHB4ENSETR (AHB1 peripheral clock enable set register) is responsible to
-turn GPIO banks on or off.
+  In order to enable a GPIO peripheral, it should be enabled (clocked) via the
+  RCC (Reset and Clock Control) unit. In the datasheet section 10.8.137 we find
+  that the AHB4ENSETR (AHB1 peripheral clock enable set register) is responsible
+  to turn GPIO banks on or off.
 
-Once this is done we should set mode for pin 6 to output so we can drive led.
-To set pin 6 to output we need to write 1 on 6th bit on 11.4.1 GPIOH mode
-register.
+  Once this is done we should set mode for pin 6 to output so we can drive led.
+  To set pin 6 to output we need to write 1 on 6th bit on 11.4.1 GPIOH mode
+  register.
 
-Then to drive pin 6 high we write 1 to 6th bit of GPIOH bit set/reset register.
-To drive pin 6 low we write 22nd bit of GPIOH bit set/reset register.
+  Then to drive pin 6 high we write 1 to 6th bit of GPIOH bit set/reset register.
+  To drive pin 6 low we write 22nd bit of GPIOH bit set/reset register.
 
 **************************************************************************/
 ///
