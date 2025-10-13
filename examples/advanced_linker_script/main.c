@@ -6,11 +6,13 @@
 
                                 LINKER SCRIPT
 
-This example is about creating minimal linker script working on STM32MP135.
+This example is about creating advanced linker script working on STM32MP135.
 
 From manual we can read that DDR memory start at 0xC0000000 and end at
  0xE0000000. Our goal is to put all program to DDR and start it there.
 We pick 0xC0300000 in case uboot uses some data rigth after 0xC0000000.
+
+This example declare MEMORY regions and configures stack as well as heap.
 
 **************************************************************************/
 ///
