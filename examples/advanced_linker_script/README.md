@@ -16,11 +16,14 @@ We can read that taken memory addresses spawn from 0xd9f20000 to 0xdfffffff and 
 So we can assume that our memory can start from 0xc0000000 and end up on 0xd9f20000 so we do not overlap 
 with already taken memory.
 
-The layout of the linker script is as following:
+The layout of the linker script is following:
 ```
    |--- 0xC0000000: Ram start 
-   |
-   |
+   | A
+   | |
+   | | 3 MB
+   | |
+   | V
    |--- 0xC0300000: App memory start 
    |
    |
@@ -36,9 +39,15 @@ The layout of the linker script is as following:
    |--- .heap section
    |
    |
-   |--- .stack section
-   |
-   |
+   |--- 0xDA220000: .stack section
+   | A
+   | |
+   | | 8 MB
+   | |
+   | V
    |--- 0xD9F20000: App memory end
 ```
 
+## What next?
+
+Here is more advanced guide: https://home.cs.colorado.edu/~main/cs1300/doc/gnu/ld_3.html

@@ -19,6 +19,7 @@ SECTIONS {
      .data : ALIGN(4) {   
              _DATA_START_ = .;
              *(.data)
+             *(.rodata)	     
              _DATA_END_ = .;	     
      } > RAM
 
