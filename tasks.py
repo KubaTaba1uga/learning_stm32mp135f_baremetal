@@ -291,9 +291,10 @@ def build(c, examples=True, example=None):
                 examples_paths = [path for path in examples_paths if path==example]
 
             for path in examples_paths:
+                _pr_info(f"Building {path}...")
+                
                 example_dir = os.path.join(EXAMPLES_PATH, os.path.basename(path))                
                 with c.cd(example_dir):
-                    _pr_info(f"Building {path}...")
                     build_dir = os.path.join(BUILD_PATH, os.path.basename(path))
                     c.run(f"mkdir -p {build_dir}")
                     c.run(
@@ -306,7 +307,7 @@ def build(c, examples=True, example=None):
                     c.run(f"arm-none-eabi-objcopy -O binary {build_dir}/{path} {ROOT_PATH}/tftp/example.bin")
                 c.run(f"chmod 777 {ROOT_PATH}/tftp/example.bin")
                     
-        _pr_info(f"Building {path} completed")
+                _pr_info(f"Building {path} completed")
 
                     
     except Exception:
