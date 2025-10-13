@@ -1,3 +1,12 @@
 ## Advanced linker script
 
-Goal of this example is to explore how linker script works in details using this document
+The layout of the linker script is as following:
+```
+   |--- 0xC0000000: Ram start 
+   |
+   |
+   |--- 0xC0300000: App memory start 
+   |
+   |
+   |---
+```
