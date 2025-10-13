@@ -121,18 +121,6 @@ def clean(c, bytecode=False, extra=""):
 
 @task
 def build_uboot(c, is_ethernet_gadget=True):
-    """
-    ❯ cat third_party/u-boot/.config | grep ENV_FILE
-    CONFIG_USE_DEFAULT_ENV_FILE=y
-    CONFIG_DEFAULT_ENV_FILE="asdad"
-
-
-    CONFIG_USE_DEFAULT_ENV_FILE=y
-    CONFIG_DEFAULT_ENV_FILE=kupaduop
-
-
-
-    """
     _pr_info("Building uboot...")
 
     env = {
@@ -154,7 +142,8 @@ def build_uboot(c, is_ethernet_gadget=True):
         uboot_env["usbnet_devaddr"] = "f8:dc:7a:00:00:02"
         uboot_env["usbnet_hostaddr"] = "f8:dc:7a:00:00:01"
         uboot_env["bootcmd"] = (
-            "bind /soc/usb@49000000 usb_ether; tftp 0xC0300000 example.bin; go 0xC0300000"
+            # "bind /soc/usb@49000000 usb_ether; tftp 0xC0300000 example.bin; go 0xC0300000"
+            "bind /soc/usb@49000000 usb_ether; tftp 0xC0300000 example.bin; bootelf 0xC0300000"            
         )
         uboot_env["serverip"] = "192.168.7.1"
         uboot_env["ipaddr"] = "192.168.7.2"
