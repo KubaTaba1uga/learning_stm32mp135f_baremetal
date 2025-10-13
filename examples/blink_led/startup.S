@@ -1,8 +1,6 @@
 .syntax unified
 .cpu cortex-a7
 	
-.section .text.startup, "ax", %progbits  @ Place this assembly in
-					 @ executable memory section
 .global _start
 .extern main
 .extern __stack_top

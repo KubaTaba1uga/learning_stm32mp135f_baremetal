@@ -52,9 +52,9 @@ int main(void) {
   // Enable GPIOH clock (bit 7)
   RCC_MP_NS_AHB4ENSETR = (1U << 7);
 
-  // Set pin mode for output (01b at bits 13:12), no pull (00b at bits 13:12)
-  GPIOH_MODER = (GPIOH_MODER & ~(3U << (6*2))) | (1U << (6*2));
-
+  // Set pin mode for output (01b at bits 13:12)
+  GPIOH_MODER = (1U << 12);
+  
   while (1) {
     // Drive pin high
     GPIOH_BSRR = (1U << 6);
