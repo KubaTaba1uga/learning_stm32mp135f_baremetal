@@ -28,6 +28,14 @@ SECTIONS {
              _BSS_END_ = .;	     
      } > RAM
 
+     /* Declare as big heap as possible */
+     HEAP_SIZE = LENGTH(RAM) - SIZEOF(.text) - SIZEOF(.data) - SIZEOF(.bss) - SIZEOF(.stack) - 16;
+     .heap (NOLOAD) : ALIGN(16) {
+       _HEAP_START_ = .;
+       . = . + HEAP_SIZE; /* Heap grows upwords so we want to allocate it at the beggining of available RAM. */
+       _HEAP_END_ = .;
+     }
+
      /* Declare 8MB stack */
      STACK_SIZE = 8M;
      . = ORIGIN(RAM) + LENGTH(RAM) - STACK_SIZE;
@@ -37,8 +45,4 @@ SECTIONS {
 	       . = . + STACK_SIZE;  /* Stack grows downwords so we want to allocate it at the end of RAM. */
 	       _STACK_START_ = .; 
      } > RAM
-
-     /* Declare as big heap as possible */
-     _HEAP_START_ = _BSS_END_;
-     _HEAP_END_ = _STACK_END_;
 }

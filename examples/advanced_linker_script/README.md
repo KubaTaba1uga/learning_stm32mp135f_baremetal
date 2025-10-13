@@ -24,6 +24,21 @@ The layout of the linker script is as following:
    |--- 0xC0300000: App memory start 
    |
    |
-   |---
+   |--- .text section
+   |
+   |
+   |--- .data section
+   |
+   |
+   |--- .bss section
+   |
+   |
+   |--- .heap section
+   |
+   |
+   |--- .stack section
+   |
+   |
+   |--- 0xD9F20000: App memory end
 ```
 
