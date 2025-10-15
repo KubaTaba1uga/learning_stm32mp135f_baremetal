@@ -1,8 +1,8 @@
 #ifndef GPIO_H
 #define GPIO_H
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 struct gpio {
   volatile uint32_t MODER;
@@ -44,6 +44,19 @@ struct gpio {
 
 enum { GPIO_MODE_INPUT, GPIO_MODE_OUTPUT, GPIO_MODE_AF, GPIO_MODE_ANALOG };
 
+enum {
+  GPIO_SPEED_LOW,
+  GPIO_SPEED_MEDIUM,
+  GPIO_SPEED_HIGH,
+  GPIO_SPEED_VERY_HIGH
+};
+
+enum { GPIO_PULL_NONE, GPIO_PULL_UP, GPIO_PULL_DOWN, GPIO_PULL_RESERVED };
+
+enum { GPIO_OUTPUT_PUSH_PULL, GPIO_OUTPUT_OPEN_DRAIN };
+
+enum { GPIO_AF_0 };
+
 static inline void gpio_set_mode(struct gpio *gpio, uint8_t pin, uint8_t mode) {
   gpio->MODER &= ~(3U << (pin * 2));      // Clear existing setting
   gpio->MODER |= (mode & 3) << (pin * 2); // Set new mode
@@ -59,6 +72,33 @@ static inline void gpio_clear_pin(struct gpio *gpio, uint8_t pin) {
 
 static inline bool gpio_get_pin(struct gpio *gpio, uint8_t pin) {
   return gpio->ODR & (1U << pin);
+}
+
+static inline void gpio_set_speed(struct gpio *gpio, uint8_t pin,
+                                  uint8_t speed) {
+  gpio->OSPEEDR &= ~(3U << (pin * 2));       // Clear existing setting
+  gpio->OSPEEDR |= (speed & 3) << (pin * 2); // Set new speed
+}
+
+static inline void gpio_set_pull(struct gpio *gpio, uint8_t pin, uint8_t pull) {
+  gpio->PUPDR &= ~(3U << (pin * 2));      // Clear existing setting
+  gpio->PUPDR |= (pull & 3) << (pin * 2); // Set new pull-up/pull-down
+}
+
+static inline void gpio_set_output(struct gpio *gpio, uint8_t pin,
+                                   uint8_t output) {
+  gpio->OTYPER &= ~(1U << pin);    // Clear existing setting
+  gpio->OTYPER |= (output << pin); // Set new output mode
+}
+
+static inline void gpio_set_af(struct gpio *gpio, uint8_t pin, uint8_t af) {
+  if (pin < 8) {
+    gpio->AFRL &= ~(1U << (pin * 4));        // Clear existing setting
+    gpio->AFRL |= ((af & 0xF) << (pin * 4)); // Set new output mode
+  } else if (pin < 16) {
+    gpio->AFRH &= ~(1U << (pin * 4));        // Clear existing setting
+    gpio->AFRH |= ((af & 0xF) << (pin * 4)); // Set new output mode
+  }
 }
 
 #endif

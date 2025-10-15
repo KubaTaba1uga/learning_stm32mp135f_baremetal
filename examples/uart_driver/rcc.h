@@ -2,7 +2,6 @@
 #define RCC_H
 
 #include "common.h"
-#include <cstdint>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -191,7 +190,7 @@ static inline enum ERROR rcc_enable_gpio(struct rcc *rcc, enum GPIO_BANK bank) {
     return ERROR_INVALID_INPUT;
   }
 
-  rcc->MP_NS_AHB4ENSETR = (1U << pin);
+  rcc->MP_NS_AHB4ENSETR |= (1U << pin);   // Enable bank  
 
   return ERROR_NONE;
 }
@@ -204,7 +203,7 @@ static inline enum ERROR rcc_disable_gpio(struct rcc *rcc,
     return ERROR_INVALID_INPUT;
   }
 
-  rcc->MP_NS_AHB4ENCLRR = (1U << pin);
+  rcc->MP_NS_AHB4ENCLRR |= (1U << pin);   // Disable bank  
 
   return ERROR_NONE;
 }
@@ -218,7 +217,7 @@ enum RCC_UART_SRC {
   RCC_UART_SRC_HSE = 0x5,
 };
 
-static inline enum ERROR rcc_set_clock_src_usart12(struct rcc *rcc,
+static inline enum ERROR rcc_set_src_usart12(struct rcc *rcc,
                                                    enum RCC_UART_SRC src,
                                                    bool is_usart1) {
   if (src < RCC_UART_SRC_PCLK6 || src > RCC_UART_SRC_HSE) {
@@ -232,7 +231,7 @@ static inline enum ERROR rcc_set_clock_src_usart12(struct rcc *rcc,
     shift = 3;
   }
 
-  rcc->UART12CKSELR = ((uint32_t)src << shift);
+  rcc->UART12CKSELR |= ((uint32_t)src << shift);  // Set USART src
 
   return ERROR_NONE;
 }
@@ -245,7 +244,7 @@ static inline void rcc_enable_usart12(struct rcc *rcc, bool is_usart1) {
     shift = 1;
   }
 
-  rcc->MP_APB6ENSETR = (1U << shift);
+  rcc->MP_APB6ENSETR |= (1U << shift);
 }
 
 static inline void rcc_disable_usart12(struct rcc *rcc, bool is_usart1) {
@@ -256,7 +255,7 @@ static inline void rcc_disable_usart12(struct rcc *rcc, bool is_usart1) {
     shift = 1;
   }
 
-  rcc->MP_APB6ENCLRR = (1U << shift);
+  rcc->MP_APB6ENCLRR |= (1U << shift);
 }
 
 #endif

@@ -21,7 +21,4 @@ enum GPIO_BANK {
   GPIO_BANK_I,
 };
 
-
-
-
 #endif // COMMON_H
