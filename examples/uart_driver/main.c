@@ -61,6 +61,7 @@ To use an I/O in a given configuration, the user has to proceed as follows:
 ///
 //
 
+#include "uart.h"
 #include "gpio.h"
 #include "rcc.h"
 #include <stdint.h>
@@ -123,31 +124,33 @@ int main(void) {
   */
 
   print_banner();
-  
-  { // Configure AF for PB0 - USART1_RX
-    gpio_set_mode(GPIOB, 0, GPIO_MODE_INPUT);
-    gpio_set_af(GPIOB, 0, 0x4); // According datasheet USART1_RX
-                                //   is 0100=0x4 for PB0    
-    gpio_set_pull(GPIOB, 0, GPIO_PULL_NONE);
-    gpio_set_speed(GPIOB, 0, GPIO_SPEED_MEDIUM);
-    gpio_set_mode(GPIOB, 0, GPIO_MODE_AF);
-  }
-
-  { // Configure AF for PC0 - USART1_TX
-    gpio_set_mode(GPIOC, 0, GPIO_MODE_OUTPUT);
-    gpio_set_af(GPIOC, 0, 0x7); // According datasheet USART1_TX
-                                //  is 0111=0x7 for PC0    
-    gpio_set_output(GPIOC, 0, GPIO_OUTPUT_PUSH_PULL);
-    gpio_set_pull(GPIOC, 0, GPIO_PULL_NONE);
-    gpio_set_speed(GPIOC, 0, GPIO_SPEED_MEDIUM);
-    gpio_set_mode(GPIOC, 0, GPIO_MODE_AF);
-  }
 
   { // Enable clock for USART1
     rcc_set_src_usart12(RCC, RCC_UART_SRC_PLL3, true);
     rcc_enable_usart12(RCC, true);
   }
+  
+  { // Configure AF for PB0 - USART1_RX
+    gpio_set_mode(GPIOB, 0, GPIO_MODE_AF);
+    gpio_set_af(GPIOB, 0, 4); // According datasheet USART1_RX
+                             //   is 0100=0x4 for PB0.
+  }
 
+  { // Configure AF for PC0 - USART1_TX
+    gpio_set_mode(GPIOC, 0, GPIO_MODE_AF);
+    gpio_set_af(GPIOC, 0, 7); // According datasheet USART1_TX
+                             //  is 0111=0x7 for PC0.    
+  }
+
+// Configure USART2
+// Reset USART2 configuration  
+  USART1->CR1 = 0;
+  USART1->CR2 = 0;
+  USART1->CR3 = 0;
+
+// Set baud rate (assuming 84MHz APB1 clock, 9600 baud)
+// BRR = fCK / baud rate = 84000000 / 9600 = 8750 = 0x2233
+USART1->BRR = 0x2233;  
   /* { // Write character to USART1 */
   /*   while (!read_bit_in_register(USART1_ISR, USART_ISR_TXE)) { */
   /*   } */

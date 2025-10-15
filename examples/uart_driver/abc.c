@@ -1,12 +1,11 @@
-#ifndef RCC_H
-#define RCC_H
-
-#include "common.h"
-#include <stdbool.h>
+#include <stdio.h>
 #include <stdint.h>
+#include <stddef.h>
+#include <assert.h>
 
 struct rcc {
   volatile uint32_t SECCFGR;
+  volatile uint8_t _reserved[252]; // Checked
   volatile uint32_t MP_SREQSETR;  
   volatile uint32_t MP_SREQCLRR;
   volatile uint32_t MP_APRSTCR;
@@ -16,8 +15,9 @@ struct rcc {
   volatile uint32_t BR_RSTSCLRR;
   volatile uint32_t MP_RSTSSETR;
   volatile uint32_t MP_RSTSCLRR;
+  volatile uint32_t MP_IWDGFZSETR;  
   volatile uint32_t MP_IWDGFZCLRR;
-  volatile uint8_t _reserved0[208];  
+  volatile uint8_t _reserved0[212];  // Checked
   volatile uint32_t MP_CIER;
   volatile uint32_t MP_CIFR;
   volatile uint8_t _reserved1[500];
@@ -225,81 +225,17 @@ struct rcc {
   volatile uint32_t SIDR;
 };
 
-#define RCC ((struct rcc *)0x50000000U)
 
-static inline enum ERROR rcc_enable_gpio(struct rcc *rcc, enum GPIO_BANK bank) {
-  uint8_t pin = bank;
 
-  if (pin < GPIO_BANK_A || pin > GPIO_BANK_H) {
-    return ERROR_INVALID_INPUT;
-  }
 
-  rcc->MP_NS_AHB4ENSETR |= (1U << pin);   // Enable bank  
+int main() {
+  printf("offsetof MP_SREQSETR: 0x%x\n", offsetof(struct rcc, MP_SREQSETR));
+  assert( offsetof(struct rcc, MP_SREQSETR) == 0x100);
+  
+  printf("offsetof MP_CIER: 0x%x\n", offsetof(struct rcc, MP_CIER));
+  assert( offsetof(struct rcc, MP_CIER) == 0x200);
 
-  return ERROR_NONE;
+  printf("offsetof SIDR: 0x%x\n", offsetof(struct rcc, SIDR));
+  
+  assert( offsetof(struct rcc, SIDR) == 0xFFC);
 }
-
-static inline enum ERROR rcc_disable_gpio(struct rcc *rcc,
-                                          enum GPIO_BANK bank) {
-  uint8_t pin = bank;
-
-  if (pin < GPIO_BANK_A || pin > GPIO_BANK_H) {
-    return ERROR_INVALID_INPUT;
-  }
-
-  rcc->MP_NS_AHB4ENCLRR |= (1U << pin);   // Disable bank  
-
-  return ERROR_NONE;
-}
-
-enum RCC_UART_SRC {
-  RCC_UART_SRC_PCLK6 = 0x0,
-  RCC_UART_SRC_PLL3 = 0x1,
-  RCC_UART_SRC_HSI = 0x2,
-  RCC_UART_SRC_CSI = 0x3,
-  RCC_UART_SRC_PLL4 = 0x4,
-  RCC_UART_SRC_HSE = 0x5,
-};
-
-static inline enum ERROR rcc_set_src_usart12(struct rcc *rcc,
-                                                   enum RCC_UART_SRC src,
-                                                   bool is_usart1) {
-  if (src < RCC_UART_SRC_PCLK6 || src > RCC_UART_SRC_HSE) {
-    return ERROR_INVALID_INPUT;
-  }
-
-  uint8_t shift;
-  if (is_usart1) {
-    shift = 0;
-  } else {
-    shift = 3;
-  }
-
-  rcc->UART12CKSELR |= ((uint32_t)src << shift);  // Set USART src
-
-  return ERROR_NONE;
-}
-
-static inline void rcc_enable_usart12(struct rcc *rcc, bool is_usart1) {
-  uint8_t shift;
-  if (is_usart1) {
-    shift = 0;
-  } else {
-    shift = 1;
-  }
-
-  rcc->MP_APB6ENSETR |= (1U << shift);
-}
-
-static inline void rcc_disable_usart12(struct rcc *rcc, bool is_usart1) {
-  uint8_t shift;
-  if (is_usart1) {
-    shift = 0;
-  } else {
-    shift = 1;
-  }
-
-  rcc->MP_APB6ENCLRR |= (1U << shift);
-}
-
-#endif
