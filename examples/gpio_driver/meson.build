@@ -1,15 +1,15 @@
-project('linker-script', 'c',
+project('gpio_driver', 'c',
   default_options : [
     'b_pie=false',
     'default_library=static',
   ],
 )
 
-src = files('main.c')
+src = files('startup.S', 'main.c')
 
-ldscript = join_paths(meson.current_source_dir(), 'linker.ld')
+ldscript = join_paths(meson.current_source_dir(), 'script.ld')
 
-executable('linker_script', src,
+executable('gpio_driver', src,
   link_args : [
     '-Wl,-T' + ldscript,
     '-lgcc',    
