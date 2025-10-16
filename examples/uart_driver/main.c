@@ -61,9 +61,10 @@ To use an I/O in a given configuration, the user has to proceed as follows:
 ///
 //
 
-#include "uart.h"
+#include "common.h"
 #include "gpio.h"
 #include "rcc.h"
+#include "uart.h"
 #include <stdint.h>
 
 // Base address cannot be cast to ptr because then all additions are treated
@@ -111,6 +112,12 @@ void print_banner() {
     write_to_register(USART4_TDR, '-');
   }
 }
+void wait() {
+  uint32_t i = 0x10000000;
+  while (i--) {
+    (void)i;
+  }
+}
 
 int main(void) {
   /*
@@ -122,42 +129,65 @@ int main(void) {
       5. Create func to read char by polling.
       6. Create func to read char as interrupt handler.
   */
-
   print_banner();
 
-  { // Enable clock for USART1
-    rcc_set_src_usart12(RCC, RCC_UART_SRC_PLL3, true);
-    rcc_enable_usart12(RCC, true);
+  { // Enable clock for GPIOC and GPIOB
+    rcc_enable_gpio(RCC, GPIO_BANK_B | GPIO_BANK_C);
   }
   
+  { // Enable clock for USART1
+    rcc_set_src_usart12(RCC, RCC_UART_SRC_HSI, true);
+    rcc_enable_usart12(RCC, true);
+  }
+
   { // Configure AF for PB0 - USART1_RX
-    gpio_set_mode(GPIOB, 0, GPIO_MODE_AF);
+    gpio_set_mode(GPIOB, 0, GPIO_MODE_AF );
     gpio_set_af(GPIOB, 0, 4); // According datasheet USART1_RX
-                             //   is 0100=0x4 for PB0.
+                              //   is 0100=0x4 for PB0.
   }
 
   { // Configure AF for PC0 - USART1_TX
     gpio_set_mode(GPIOC, 0, GPIO_MODE_AF);
     gpio_set_af(GPIOC, 0, 7); // According datasheet USART1_TX
-                             //  is 0111=0x7 for PC0.    
+                              //  is 0111=0x7 for PC0.
   }
 
-// Configure USART2
-// Reset USART2 configuration  
+  // Configure USART1
+  // Reset USART1 configuration
   USART1->CR1 = 0;
   USART1->CR2 = 0;
   USART1->CR3 = 0;
 
-// Set baud rate (assuming 84MHz APB1 clock, 9600 baud)
-// BRR = fCK / baud rate = 84000000 / 9600 = 8750 = 0x2233
-USART1->BRR = 0x2233;  
-  /* { // Write character to USART1 */
-  /*   while (!read_bit_in_register(USART1_ISR, USART_ISR_TXE)) { */
-  /*   } */
-  /*   write_to_register(USART1_TDR, '-'); */
-  /* } */
+  /* Program the M bits in USART_CR1 to define the word length. */
+  /* Select the desired baud rate using the USART_BRR register. */
+  /* Program the number of stop bits in USART_CR2. */
+  /* Enable the USART by writing the UE bit in USART_CR1 register to 1. */
+  /* Set the TE bit in USART_CR1 to send an idle frame as first transmission. */
+  /* Write the data to send in the USART_TDR register. Repeat this for each data to be */
+  /* transmitted in case of single buffer. */
+
+/* Settings: */
+/*   baudrate 115200 databits 8 */
+/*   no flow control stopbits 1 */
+/* oversampling by 16 */
+                            // 
+  // Set baud rate (assuming 84MHz APB1 clock, 9600 baud)
+  // BRR = fCK / baud rate = 84000000 / 9600 = 8750 = 0x2233
+  /* USART1->BRR = 0x2233; */
+  USART1->BRR = 64000000 / 115200;
+  
+  USART1->CR1 |= (0x01U);
+
+  USART1->CR1 |= (1U << 2); // Enable receiver
+  USART1->CR1 |= (1U << 3); // Enable transmiter
+  
+  { // Write character to USART1
+    while (!read_bit_in_register(USART1_ISR, USART_ISR_TXE)) {
+    }
+    write_to_register(USART1_TDR, '-');
+  }
 
   print_banner();
-  
+
   return 0;
 }
