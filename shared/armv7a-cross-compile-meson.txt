@@ -17,5 +17,6 @@ c_link_args = ['-nostdlib','-nostartfiles','-Wl,-no-pie']
 system = 'bare-metal'
 kernel = 'none'
 cpu_family = 'arm'
-cpu = 'cortex-a7'
+cpu = 'armv7hl'
 endian = 'little'
+

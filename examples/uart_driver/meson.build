@@ -16,3 +16,5 @@ executable('uart_driver', src,
   ],
   install : false
 )
+
+subdir('tests')

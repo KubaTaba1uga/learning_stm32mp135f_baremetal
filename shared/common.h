@@ -1,0 +1,18 @@
+#ifndef COMMON_H
+#define COMMON_H
+
+enum {
+  GPIO_BANK_A,
+  GPIO_BANK_B,
+  GPIO_BANK_C,
+  GPIO_BANK_D,
+  GPIO_BANK_E,
+  GPIO_BANK_F,
+  GPIO_BANK_G,
+  GPIO_BANK_H,
+  GPIO_BANK_I,
+};
+
+
+
+#endif // COMMON_H

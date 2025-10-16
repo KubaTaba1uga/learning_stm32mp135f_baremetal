@@ -1,0 +1,12 @@
+diff --git a/meson.build b/meson.build
+index 6585129..172d01f 100644
+--- a/meson.build
++++ b/meson.build
+@@ -53,6 +53,7 @@ unity_lib = static_library(meson.project_name(),
+   c_args: unity_args,
+   include_directories: unity_inc,
+   install: not meson.is_subproject(),
++  native:true,
+ )
+ 
+ unity_dep = declare_dependency(
