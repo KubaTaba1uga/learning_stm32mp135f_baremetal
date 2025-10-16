@@ -1,5 +1,6 @@
 tests = [
   {'src': 'test_rcc'},
+  {'src': 'test_uart'},  
 ]
 
 unity_subproject = subproject('unity')

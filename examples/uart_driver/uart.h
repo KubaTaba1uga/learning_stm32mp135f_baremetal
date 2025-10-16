@@ -15,8 +15,9 @@ struct uart {
   volatile uint32_t ISR;
   volatile uint32_t ICR;
   volatile uint32_t RDR;
-  volatile uint32_t TDR;  
+  volatile uint32_t TDR;
   volatile uint32_t PRESC;
+  volatile uint8_t _reserved[954];
   volatile uint32_t HWCFGR2;
   volatile uint32_t HWCFGR1;
   volatile uint32_t VERR;
