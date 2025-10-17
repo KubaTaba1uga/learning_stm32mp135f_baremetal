@@ -60,10 +60,11 @@ To use an I/O in a given configuration, the user has to proceed as follows:
 ///
 //
 
-#include "common.h"
 #include "gpio.h"
 #include "rcc.h"
 #include "uart.h"
+#include "common.h"
+
 #include <stdint.h>
 
 const char word[] = "Hello friend";

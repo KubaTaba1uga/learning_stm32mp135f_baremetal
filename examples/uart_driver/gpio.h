@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "common.h"
+
 struct gpio {
   volatile uint32_t MODER;
   volatile uint32_t OTYPER;
@@ -55,60 +57,60 @@ enum { GPIO_PULL_NONE, GPIO_PULL_UP, GPIO_PULL_DOWN, GPIO_PULL_RESERVED };
 
 enum { GPIO_OUTPUT_PUSH_PULL, GPIO_OUTPUT_OPEN_DRAIN };
 
-enum { GPIO_AF_0 };
-
 static inline void gpio_set_mode(struct gpio *gpio, uint8_t pin, uint8_t mode) {
-  gpio->MODER &= ~(3U << (pin * 2));      // Clear existing setting
-  gpio->MODER |= (mode & 3) << (pin * 2); // Set new mode
+  const uint8_t max = 3U;
+  const uint8_t shift = 2 * pin;
+
+  BITS_CLEAR(gpio->MODER, max, shift);
+  BITS_SET(gpio->MODER, mode, max, shift);
 }
 
 static inline void gpio_set_pin(struct gpio *gpio, uint8_t pin) {
-  gpio->BSRR |= (1U << pin);
+  BIT_SET(gpio->BSRR, pin);
 }
 
 static inline void gpio_clear_pin(struct gpio *gpio, uint8_t pin) {
-  gpio->BSRR |= (1U << (pin + 16));
+  BIT_SET(gpio->BSRR, pin + 16);
 }
 
 static inline bool gpio_get_pin(struct gpio *gpio, uint8_t pin) {
-  return gpio->ODR & (1U << pin);
+  return BIT_GET(gpio->ODR, pin);
 }
 
 static inline void gpio_set_speed(struct gpio *gpio, uint8_t pin,
                                   uint8_t speed) {
-  gpio->OSPEEDR &= ~(3U << (pin * 2));       // Clear existing setting
-  gpio->OSPEEDR |= (speed & 3) << (pin * 2); // Set new speed
+  const uint8_t max = 3U;
+  const uint8_t shift = 2 * pin;
+
+  BITS_CLEAR(gpio->OSPEEDR, max, shift);
+  BITS_SET(gpio->OSPEEDR, speed, max, shift);
 }
 
 static inline void gpio_set_pull(struct gpio *gpio, uint8_t pin, uint8_t pull) {
-  gpio->PUPDR &= ~(3U << (pin * 2));      // Clear existing setting
-  gpio->PUPDR |= (pull & 3) << (pin * 2); // Set new pull-up/pull-down
+  const uint8_t max = 3U;
+  const uint8_t shift = 2 * pin;
+
+  BITS_CLEAR(gpio->PUPDR, max, shift);
+  BITS_SET(gpio->PUPDR, pull, max, shift);
 }
 
 static inline void gpio_set_output(struct gpio *gpio, uint8_t pin,
                                    uint8_t output) {
-  gpio->OTYPER &= ~(1U << pin);    // Clear existing setting
-  gpio->OTYPER |= (output << pin); // Set new output mode
+  BIT_CLEAR(gpio->OTYPER, pin);
+  BITS_SET(gpio->OTYPER, output, 1U, pin);
 }
 
 static inline void gpio_set_af(struct gpio *gpio, uint8_t pin, uint8_t af) {
-    uint32_t shift = (pin & 7U) * 4U;
-    uint32_t mask  = 0xFU << shift;
+  const uint8_t max = 0xF;
+  const uint8_t shift = 4 * pin;
 
-    if (pin < 8) {
-        gpio->AFRL = (gpio->AFRL & ~mask) | ((uint32_t)(af & 0xF) << shift);
-    } else {
-        gpio->AFRH = (gpio->AFRH & ~mask) | ((uint32_t)(af & 0xF) << shift);
-    }
+  if (pin < 8) {
+    BITS_CLEAR(gpio->AFRL, max, shift);   // Clear existing setting
+    BITS_SET(gpio->AFRL, af, max, shift); // Set new output mode
+  } else if (pin < 16) {
+    BITS_CLEAR(gpio->AFRH, max, shift);   // Clear existing setting
+    BITS_SET(gpio->AFRH, af, max, shift); // Set new output mode
+  }
 }
-/* static inline void gpio_set_af(struct gpio *gpio, uint8_t pin, uint8_t af) { */
-/*   if (pin < 8) { */
-/*     gpio->AFRL &= ~(1U << (pin * 4));        // Clear existing setting */
-/*     gpio->AFRL |= ((af & 0xF) << (pin * 4)); // Set new output mode */
-/*   } else if (pin < 16) { */
-/*     gpio->AFRH &= ~(1U << (pin * 4));        // Clear existing setting */
-/*     gpio->AFRH |= ((af & 0xF) << (pin * 4)); // Set new output mode */
-/*   } */
-/* } */
 
 #endif

@@ -1,6 +1,7 @@
 #ifndef UART_H
 #define UART_H
 
+#include "common.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -96,25 +97,25 @@ static inline void uart_set_baud_rate(struct uart *uart, uint32_t clk_freq,
 
 static inline void uart_set_tx(struct uart *uart, bool enable) {
   if (enable) {
-    uart->CR1 |= (1U << 3); // Enable transmiter
+    BIT_SET(uart->CR1, 3);
   } else {
-    uart->CR1 &= ~(1U << 3); // Disable transmiter
+    BIT_CLEAR(uart->CR1, 3);
   }
 }
 
 static inline void uart_set_rx(struct uart *uart, bool enable) {
   if (enable) {
-    uart->CR1 |= (1U << 2); // Enable receiver
+    BIT_SET(uart->CR1, 2);
   } else {
-    uart->CR1 &= ~(1U << 2); // Disable receiver
+    BIT_CLEAR(uart->CR1, 2);
   }
 }
 
 static inline void uart_set_enable(struct uart *uart, bool enable) {
   if (enable) {
-    uart->CR1 |= (1U); // Enable uart
+    BIT_SET(uart->CR1, 0);
   } else {
-    uart->CR1 &= ~(1U); // Disable uart
+    BIT_CLEAR(uart->CR1, 0);
   }
 }
 
@@ -123,7 +124,7 @@ static inline void uart_write_char(struct uart *uart, char c) {
       This register must be written only when TXE / TXFNF = 1.
      TXE is 7th bit.
   */
-  while (!(uart->ISR & (1U << 7))) {
+  while (!BIT_GET(uart->ISR, 7)) {
     (void)uart;
   }
 
@@ -132,7 +133,7 @@ static inline void uart_write_char(struct uart *uart, char c) {
 
 static inline void uart_write_str(struct uart *uart, const char *str) {
   while (*str) {
-    while (!(uart->ISR & (1U << 7))) {
+    while (!BIT_GET(uart->ISR, 7)) {
       (void)uart;
     }
 
@@ -149,7 +150,8 @@ static inline char uart_read_char(struct uart *uart) {
      RXNE is 5th bit.
   */
 
-  while (!(uart->ISR & (1U << 5))) {
+  while (!BIT_GET(uart->ISR, 5)) {
+    (void)uart;
   }
 
   return uart->RDR;

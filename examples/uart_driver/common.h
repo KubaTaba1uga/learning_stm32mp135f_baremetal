@@ -21,4 +21,14 @@ enum GPIO_BANK {
   GPIO_BANK_I,
 };
 
+#define BITS_CLEAR(reg, max, bits) ((reg) &= ~((max) << (bits)))
+
+#define BITS_SET(reg, value, max, bits) ((reg) |= (((value) & (max)) << (bits)))
+
+#define BIT_SET(reg, bit) BITS_SET(reg, 1U, 1U, bit)
+
+#define BIT_GET(reg, bit) ((reg) & (1U << (bit)))
+
+#define BIT_CLEAR(reg, bit) BITS_CLEAR(reg, 1U, bit)
+
 #endif // COMMON_H

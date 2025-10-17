@@ -1,9 +1,10 @@
 #ifndef RCC_H
 #define RCC_H
 
-#include "common.h"
 #include <stdbool.h>
 #include <stdint.h>
+
+#include "common.h"
 
 struct rcc {
   volatile uint32_t SECCFGR;
@@ -231,32 +232,17 @@ struct rcc {
 
 #define RCC ((struct rcc *)0x50000000U)
 
-static inline enum ERROR rcc_enable_gpio(struct rcc *rcc, enum GPIO_BANK bank) {
-  uint8_t pin = bank;
 
-  if (pin < GPIO_BANK_A || pin > GPIO_BANK_H) {
-    return ERROR_INVALID_INPUT;
-  }
-
-  rcc->MP_NS_AHB4ENSETR |= (1U << pin); // Enable bank
-
-  return ERROR_NONE;
+static inline void rcc_enable_gpio(struct rcc *rcc, uint8_t bank) {
+  BIT_SET(rcc->MP_NS_AHB4ENSETR, bank); // Enable bank
 }
 
-static inline enum ERROR rcc_disable_gpio(struct rcc *rcc,
-                                          enum GPIO_BANK bank) {
-  uint8_t pin = bank;
-
-  if (pin < GPIO_BANK_A || pin > GPIO_BANK_H) {
-    return ERROR_INVALID_INPUT;
-  }
-
-  rcc->MP_NS_AHB4ENCLRR |= (1U << pin); // Disable bank
-
-  return ERROR_NONE;
+static inline void rcc_disable_gpio(struct rcc *rcc,
+                                         uint8_t bank) {
+  BIT_CLEAR(rcc->MP_NS_AHB4ENCLRR, bank); // Disable bank
 }
 
-enum RCC_UART_SRC {
+enum {
   RCC_UART_SRC_PCLK6 = 0x0,
   RCC_UART_SRC_PLL3 = 0x1,
   RCC_UART_SRC_HSI = 0x2,
@@ -265,12 +251,8 @@ enum RCC_UART_SRC {
   RCC_UART_SRC_HSE = 0x5,
 };
 
-static inline enum ERROR
-rcc_set_src_usart12(struct rcc *rcc, enum RCC_UART_SRC src, bool is_usart1) {
-  if (src < RCC_UART_SRC_PCLK6 || src > RCC_UART_SRC_HSE) {
-    return ERROR_INVALID_INPUT;
-  }
-
+static inline void
+rcc_set_src_usart12(struct rcc *rcc, uint8_t src, bool is_usart1) {
   uint8_t shift;
   if (is_usart1) {
     shift = 0;
@@ -278,9 +260,7 @@ rcc_set_src_usart12(struct rcc *rcc, enum RCC_UART_SRC src, bool is_usart1) {
     shift = 3;
   }
 
-  rcc->UART12CKSELR |= ((uint32_t)src << shift); // Set USART src
-
-  return ERROR_NONE;
+  BITS_SET(rcc->UART12CKSELR, src, 3U, shift);
 }
 
 static inline void rcc_enable_usart12(struct rcc *rcc, bool is_usart1) {
@@ -290,8 +270,8 @@ static inline void rcc_enable_usart12(struct rcc *rcc, bool is_usart1) {
   } else {
     shift = 1;
   }
-
-  rcc->MP_APB6ENSETR |= (1U << shift);
+  
+  BIT_SET(rcc->MP_APB6ENSETR,  shift);
 }
 
 static inline void rcc_disable_usart12(struct rcc *rcc, bool is_usart1) {
@@ -301,8 +281,8 @@ static inline void rcc_disable_usart12(struct rcc *rcc, bool is_usart1) {
   } else {
     shift = 1;
   }
-
-  rcc->MP_APB6ENCLRR |= (1U << shift);
+  
+  BIT_SET(rcc->MP_APB6ENCLRR,  shift);
 }
 
 #endif
