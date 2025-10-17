@@ -54,16 +54,14 @@ To use an I/O in a given configuration, the user has to proceed as follows:
   4. Configure the desired I/O as an alternate function in the GPIOx_MODER
      register.
 
-
-
 **************************************************************************/
 ///
 //
 
+#include "common.h"
 #include "gpio.h"
 #include "rcc.h"
 #include "uart.h"
-#include "common.h"
 
 #include <stdint.h>
 
@@ -77,14 +75,14 @@ int main(void) {
       2. Enable clock for USART1. DONE
       3. Create func to write char. DONE
       4. Create func to write str. DONE
-      5. Create func to read char by polling.
+      5. Create func to read char by polling. DONE
       6. Create func to read char as interrupt handler.
   */
   print_banner(UART4);
 
   { // Enable clock for GPIOB and GPIOC
     rcc_enable_gpio(RCC, GPIO_BANK_B);
-    rcc_enable_gpio(RCC, GPIO_BANK_C);    
+    rcc_enable_gpio(RCC, GPIO_BANK_C);
   }
 
   { // Enable clock for USART1
@@ -94,7 +92,7 @@ int main(void) {
 
   { // Configure AF for GPIOB 0 - USART1_RX
     gpio_set_mode(GPIOB, 0, GPIO_MODE_INPUT);
-    gpio_set_speed(GPIOB, 0, GPIO_SPEED_HIGH)    ;
+    gpio_set_speed(GPIOB, 0, GPIO_SPEED_HIGH);
     gpio_set_pull(GPIOB, 0, GPIO_PULL_UP);
 
     gpio_set_mode(GPIOB, 0, GPIO_MODE_AF);
@@ -103,7 +101,7 @@ int main(void) {
   }
 
   { // Configure AF for GPIOC 0 - USART1_TX
-    gpio_set_speed(GPIOB, 0, GPIO_SPEED_HIGH)    ;    
+    gpio_set_speed(GPIOC, 0, GPIO_SPEED_HIGH);
     gpio_set_mode(GPIOC, 0, GPIO_MODE_AF);
     gpio_set_af(GPIOC, 0, 7); // According datasheet USART1_TX
                               //  is 0111=0x7 for PC0.
@@ -120,32 +118,57 @@ int main(void) {
 
     // Set baud rate (assuming 64MHz HSI clock, 115200 baud)
     uart_set_baud_rate(USART1, 64000000, 115200);
-    /* USART1->CR1 |= 1U | (1U << 2) | (1U << 3); */
-    uart_set_rx(USART1, true);    
-    uart_set_tx(USART1, true);    
-    uart_set_enable(USART1, true);
+    uart_set_ctrl(USART1, UART_CR1_ALT_RE, 1U); // Enable reciver
+    uart_set_ctrl(USART1, UART_CR1_ALT_TE, 1U); // Enable transiver
+    uart_set_ctrl(USART1, UART_CR1_ALT_UE, 1U); // Enable uart
   }
-
 
   { // Write banner to USART1
     print_banner(USART1);
   }
 
-  char c = uart_read_char(UART4);
-  uart_write_char(UART4, c);
-  print_banner(UART4);
-  
-  c = uart_read_char(USART1);
-  uart_write_char(USART1, c);
+  { // Enable GPIOH
+    rcc_enable_gpio(RCC, GPIO_BANK_H);
+  }
 
-  print_banner(USART1);
+  // Configure GPIOH for output
+  const uint8_t gpioh_pin = 6;
+  gpio_set_mode(GPIOH, gpioh_pin, GPIO_MODE_OUTPUT);
+
+  { // Simulate console on USART1
+    while (true) {
+      uart_write_str(USART1, "> ");
+
+      char lc = 0;
+      while (true) {
+        char c = uart_read_char(USART1);
+        if (c == '\n' || c == '\r') {
+          uart_write_str(USART1, "\r\n");
+          { // Switch LED on/off
+            if (lc == 'H') {
+              gpio_set_pin(GPIOH, gpioh_pin);
+            } else if (lc == 'L') {
+              gpio_clear_pin(GPIOH, gpioh_pin);
+            }
+          }
+          break;
+        }
+        uart_write_char(USART1, c);
+        lc = c;
+      }
+    }
+  }
 
   return 0;
 }
 
 void print_banner(struct uart *uart) {
+  for (uint8_t i = 0; i < 32; i++) {
+    uart_write_str(uart, "\r\n");
+  }
+
   uart_write_char(uart, '-');
   uart_write_str(uart, word);
   uart_write_char(uart, '-');
-  uart_write_str(uart, "\r\n");    
+  uart_write_str(uart, "\r\n");
 }

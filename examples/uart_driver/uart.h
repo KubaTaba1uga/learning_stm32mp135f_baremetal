@@ -2,7 +2,6 @@
 #define UART_H
 
 #include "common.h"
-#include <cstdint>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -134,7 +133,7 @@ enum {
 };
 
 static inline void uart_set_ctrl(struct uart *uart, uint8_t setting,
-                                  uint8_t value) {
+                                 uint8_t value) {
   if (setting < UART_CR2_SLVEN) { // Handle CR1
     switch (setting) {
     case UART_CR1_ALT_DEAT:
@@ -165,13 +164,13 @@ static inline void uart_set_ctrl(struct uart *uart, uint8_t setting,
       }
     }
   } else { // Handle CR3
-    uint8_t bits = setting -  UART_CR3_EIE;
+    uint8_t bits = setting - UART_CR3_EIE;
     switch (setting) {
     case UART_CR3_SCARCNT:
-    case UART_CR3_RXTCFG: 
-    case UART_CR3_TXTCFG:           
+    case UART_CR3_RXTCFG:
+    case UART_CR3_TXTCFG:
       BITS_SET(uart->CR3, value, 7U, bits);
-      break;      
+      break;
     case UART_CR3_WUS:
       BITS_SET(uart->CR3, value, 3U, bits);
       break;
@@ -185,37 +184,12 @@ static inline void uart_set_ctrl(struct uart *uart, uint8_t setting,
         BIT_CLEAR(uart->CR1, bits);
       }
     }
-    
   }
 }
 
 static inline void uart_set_baud_rate(struct uart *uart, uint32_t clk_freq,
                                       uint32_t baud_rate) {
   uart->BRR = clk_freq / baud_rate;
-}
-
-static inline void uart_set_tx(struct uart *uart, bool enable) {
-  if (enable) {
-    BIT_SET(uart->CR1, 3);
-  } else {
-    BIT_CLEAR(uart->CR1, 3);
-  }
-}
-
-static inline void uart_set_rx(struct uart *uart, bool enable) {
-  if (enable) {
-    BIT_SET(uart->CR1, 2);
-  } else {
-    BIT_CLEAR(uart->CR1, 2);
-  }
-}
-
-static inline void uart_set_enable(struct uart *uart, bool enable) {
-  if (enable) {
-    BIT_SET(uart->CR1, 0);
-  } else {
-    BIT_CLEAR(uart->CR1, 0);
-  }
 }
 
 static inline void uart_write_char(struct uart *uart, char c) {
@@ -254,6 +228,23 @@ static inline char uart_read_char(struct uart *uart) {
   }
 
   return uart->RDR;
+};
+
+static inline uint8_t uart_read_line(struct uart *uart, char *buffer,
+                                     uint8_t buffer_len) {
+  uint8_t i = 0;
+
+  for (; i < buffer_len; i++) {
+    char c = uart_read_char(uart);
+    if (!c || c == '\n') {
+      break;
+    }
+    buffer[i] = c;
+  }
+
+  buffer[i] = 0;
+
+  return i;
 };
 
 #endif
