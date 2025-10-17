@@ -69,15 +69,6 @@ const char word[] = "Hello friend";
 void print_banner(struct uart *uart);
 
 int main(void) {
-  /*
-    TO-DO:
-      1. Enable alternate function of PC0 and PB0. DONE
-      2. Enable clock for USART1. DONE
-      3. Create func to write char. DONE
-      4. Create func to write str. DONE
-      5. Create func to read char by polling. DONE
-      6. Create func to read char as interrupt handler.
-  */
   print_banner(UART4);
 
   { // Enable clock for GPIOB and GPIOC
