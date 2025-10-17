@@ -92,13 +92,23 @@ static inline void gpio_set_output(struct gpio *gpio, uint8_t pin,
 }
 
 static inline void gpio_set_af(struct gpio *gpio, uint8_t pin, uint8_t af) {
-  if (pin < 8) {
-    gpio->AFRL &= ~(1U << (pin * 4));        // Clear existing setting
-    gpio->AFRL |= ((af & 0xF) << (pin * 4)); // Set new output mode
-  } else if (pin < 16) {
-    gpio->AFRH &= ~(1U << (pin * 4));        // Clear existing setting
-    gpio->AFRH |= ((af & 0xF) << (pin * 4)); // Set new output mode
-  }
+    uint32_t shift = (pin & 7U) * 4U;
+    uint32_t mask  = 0xFU << shift;
+
+    if (pin < 8) {
+        gpio->AFRL = (gpio->AFRL & ~mask) | ((uint32_t)(af & 0xF) << shift);
+    } else {
+        gpio->AFRH = (gpio->AFRH & ~mask) | ((uint32_t)(af & 0xF) << shift);
+    }
 }
+/* static inline void gpio_set_af(struct gpio *gpio, uint8_t pin, uint8_t af) { */
+/*   if (pin < 8) { */
+/*     gpio->AFRL &= ~(1U << (pin * 4));        // Clear existing setting */
+/*     gpio->AFRL |= ((af & 0xF) << (pin * 4)); // Set new output mode */
+/*   } else if (pin < 16) { */
+/*     gpio->AFRH &= ~(1U << (pin * 4));        // Clear existing setting */
+/*     gpio->AFRH |= ((af & 0xF) << (pin * 4)); // Set new output mode */
+/*   } */
+/* } */
 
 #endif
