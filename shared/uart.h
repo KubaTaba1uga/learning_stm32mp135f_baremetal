@@ -1,9 +1,10 @@
 #ifndef UART_H
 #define UART_H
 
-#include "common.h"
 #include <stdbool.h>
 #include <stdint.h>
+
+#include "common.h"
 
 struct uart {
   volatile uint32_t CR1;

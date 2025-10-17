@@ -14,7 +14,8 @@ executable('uart_poll_rx', src,
     '-Wl,-T' + ldscript,
     '-lgcc',    
   ],
-  install : false
+  install: false,
+  include_directories: include_directories('../../shared'),
 )
 
 subdir('tests')
