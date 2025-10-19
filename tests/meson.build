@@ -23,7 +23,6 @@ foreach test : tests
     sources: [name + '.c', test_runner.process(name + '.c')],
     dependencies: unity_dependency,
     include_directories: include_directories('../shared'),
-    native : true,
   )
 
   test(name, exe)

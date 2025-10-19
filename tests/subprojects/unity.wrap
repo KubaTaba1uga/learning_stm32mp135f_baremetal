@@ -2,5 +2,3 @@
 url = https://github.com/ThrowTheSwitch/Unity.git
 revision = v2.6.1
 depth = 1
-
-diff_files = unitydiffs/01.diff

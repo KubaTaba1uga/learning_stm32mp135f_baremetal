@@ -362,7 +362,6 @@ def deploy_via_usb(c):
 @task
 def deploy_to_sdcard(c, dev="sda"):
     with c.cd(BUILD_PATH):
-        # c.run("sudo dd if=uboot.env of=/dev/sdb bs=512 seek=18432 conv=notrunc")
         if not os.path.exists("/dev/disk/by-partlabel/fsbl1"):
             raise ValueError("No /dev/disk/by-partlabel/fsbl1")
         if not os.path.exists("/dev/disk/by-partlabel/fsbl2"):
@@ -392,14 +391,18 @@ def test(c, test=None):
         if test is not None:
             cmd += test
 
-        c.run(cmd)
+        try:
+            c.run(cmd)
+        except:
+            _pr_error("Testing failed")
+            raise
+    _pr_info("Testing completed")
         
 ###############################################
 #                Private API                  #
 ###############################################
 def _command_exists(command):
     try:
-        # Attempt to run the command with '--version' or any other flag that doesn't change system state
         subprocess.run(
             ["which", command], stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
