@@ -289,6 +289,10 @@ def build(c, examples=True, example=None):
                     c.run(
                         f"meson setup --wipe --cross-file {os.path.join(SHARED_PATH, 'armv7a-cross-compile-meson.txt')} {build_dir}"
                     )
+                    c.run(
+                        f"rm -f compile_commands.json && ln -s {os.path.join(build_dir, 'compile_commands.json')} compile_commands.json"
+                    )
+                    
                     
                 c.run(f"meson compile -C {build_dir}")
                     

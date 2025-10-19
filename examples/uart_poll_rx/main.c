@@ -70,7 +70,7 @@ void print_banner(struct uart *uart);
 
 int main(void) {
   print_banner(UART4);
-  
+
   { // Enable clock for GPIOB and GPIOC
     rcc_enable_gpio(RCC, GPIO_BANK_B);
     rcc_enable_gpio(RCC, GPIO_BANK_C);
@@ -122,6 +122,7 @@ int main(void) {
     rcc_enable_gpio(RCC, GPIO_BANK_H);
   }
 
+  
   // Configure GPIOH for output
   const uint8_t gpioh_pin = 6;
   gpio_set_mode(GPIOH, gpioh_pin, GPIO_MODE_OUTPUT);
@@ -149,7 +150,7 @@ int main(void) {
       }
     }
   }
-
+  
   return 0;
 }
 
@@ -162,6 +163,4 @@ void print_banner(struct uart *uart) {
   uart_write_str(uart, word);
   uart_write_char(uart, '-');
   uart_write_str(uart, "\r\n");
-
 }
-
