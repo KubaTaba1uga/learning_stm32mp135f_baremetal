@@ -58,4 +58,5 @@ int main(void) {
   }
   write_to_register(USART_TDR, '-');
 
+  return 0;
 }

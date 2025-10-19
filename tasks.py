@@ -266,7 +266,7 @@ def build_tfa(c):
 
 
 @task
-def build(c, examples=True, example=None):
+def build(c, examples=True, example=None, tests=False):
     _pr_info("Building...")
     try:
         if example is None:
@@ -289,6 +289,10 @@ def build(c, examples=True, example=None):
                     c.run(
                         f"meson setup --wipe --cross-file {os.path.join(SHARED_PATH, 'armv7a-cross-compile-meson.txt')} {build_dir}"
                     )
+                    c.run(
+                        f"rm -f compile_commands.json && ln -s {os.path.join(build_dir, 'compile_commands.json')} compile_commands.json"
+                    )
+                    
                     
                 c.run(f"meson compile -C {build_dir}")
                     
@@ -298,7 +302,22 @@ def build(c, examples=True, example=None):
                     
                 _pr_info(f"Building {path} completed")
 
-                    
+        if tests:
+            tests_dir = os.path.join(ROOT_PATH, "tests")
+            build_dir = os.path.join(BUILD_PATH, "tests")
+            _pr_info(f"Building tests...")
+            
+            with c.cd(tests_dir):
+                c.run(
+                    f"meson setup {build_dir}"
+                )                
+                c.run(
+                    f"rm -f compile_commands.json && ln -s {os.path.join(build_dir, 'compile_commands.json')} compile_commands.json"
+                )
+                
+            c.run(f"meson compile -C {build_dir}")            
+            _pr_info(f"Building tests completed")            
+            
     except Exception:
         _pr_error("Building failed")
         raise
@@ -343,7 +362,6 @@ def deploy_via_usb(c):
 @task
 def deploy_to_sdcard(c, dev="sda"):
     with c.cd(BUILD_PATH):
-        # c.run("sudo dd if=uboot.env of=/dev/sdb bs=512 seek=18432 conv=notrunc")
         if not os.path.exists("/dev/disk/by-partlabel/fsbl1"):
             raise ValueError("No /dev/disk/by-partlabel/fsbl1")
         if not os.path.exists("/dev/disk/by-partlabel/fsbl2"):
@@ -361,12 +379,30 @@ def deploy_to_sdcard(c, dev="sda"):
         c.run("sudo sync")
 
 
+@task
+def test(c, test=None):
+    _pr_info("Testing...")
+
+    tests_dir = os.path.join(ROOT_PATH, "tests")
+    build_dir = os.path.join(BUILD_PATH, "tests")
+
+    with c.cd(tests_dir):
+        cmd = f"meson test -C {build_dir} --verbose "
+        if test is not None:
+            cmd += test
+
+        try:
+            c.run(cmd)
+        except:
+            _pr_error("Testing failed")
+            raise
+    _pr_info("Testing completed")
+        
 ###############################################
 #                Private API                  #
 ###############################################
 def _command_exists(command):
     try:
-        # Attempt to run the command with '--version' or any other flag that doesn't change system state
         subprocess.run(
             ["which", command], stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
