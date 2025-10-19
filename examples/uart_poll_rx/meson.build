@@ -17,5 +17,3 @@ executable('uart_poll_rx', src,
   install: false,
   include_directories: include_directories('../../shared'),
 )
-
-subdir('tests')

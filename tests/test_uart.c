@@ -11,6 +11,5 @@ void test_uart_regs_mapping() {
   
   printf("offsetof SIDR: %lx\n", offsetof(struct uart, SIDR));
   TEST_ASSERT_EQUAL_HEX(0x3FC, offsetof(struct uart, SIDR));
-
 }
 

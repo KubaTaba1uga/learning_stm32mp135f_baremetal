@@ -266,7 +266,7 @@ def build_tfa(c):
 
 
 @task
-def build(c, examples=True, example=None):
+def build(c, examples=True, example=None, tests=False):
     _pr_info("Building...")
     try:
         if example is None:
@@ -302,7 +302,22 @@ def build(c, examples=True, example=None):
                     
                 _pr_info(f"Building {path} completed")
 
-                    
+        if tests:
+            tests_dir = os.path.join(ROOT_PATH, "tests")
+            build_dir = os.path.join(BUILD_PATH, "tests")
+            _pr_info(f"Building tests...")
+            
+            with c.cd(tests_dir):
+                c.run(
+                    f"meson setup {build_dir}"
+                )                
+                c.run(
+                    f"rm -f compile_commands.json && ln -s {os.path.join(build_dir, 'compile_commands.json')} compile_commands.json"
+                )
+                
+            c.run(f"meson compile -C {build_dir}")            
+            _pr_info(f"Building tests completed")            
+            
     except Exception:
         _pr_error("Building failed")
         raise
@@ -365,6 +380,20 @@ def deploy_to_sdcard(c, dev="sda"):
         c.run("sudo sync")
 
 
+@task
+def test(c, test=None):
+    _pr_info("Testing...")
+
+    tests_dir = os.path.join(ROOT_PATH, "tests")
+    build_dir = os.path.join(BUILD_PATH, "tests")
+
+    with c.cd(tests_dir):
+        cmd = f"meson test -C {build_dir} --verbose "
+        if test is not None:
+            cmd += test
+
+        c.run(cmd)
+        
 ###############################################
 #                Private API                  #
 ###############################################

@@ -10,17 +10,16 @@ Wich GPIO to use for uart?
 USART1 is exposed via alternate functions of:
 - GPIO pin 8  - CPU pin PC0 - USART1_TX
 - GPIO pin 10 - CPU pin PB0 - USART1_RX
-- GPIO pin 11 - CPU pin PC2 - USART1_RTS
-- GPIO pin 36 - CPU pin PA7 - USART1_CTS
 
-For this example we will use only:
-- USART1_TX
-- USART1_RX
+GPIO2 is exposed via:
+- GPIO pin 3  - CPU pin PH6 - GPIOH pin 6
 
 40 pin gpio:
-                              GND
-                              |
-                              |       1
+                              UART_GND
+LED_GND                       |
+|                             |     LED_PWR
+|                             |     |
+|                             |     | 1
 * * * * * * * * * * * * * * * * * * * *
 * * * * * * * * * * * * * * * * * * * *
                               | |     2
@@ -28,13 +27,14 @@ For this example we will use only:
                         UART_TX  UART_RX
 
 Memory regions:
-USART1 memory start is 0x4C000000
-GPIOC memory start is  0x50004000
-GPIOB memory start is  0x50003000
+USART1 memory start at: 0x4C000000
+GPIOC memory start at:  0x50004000
+GPIOB memory start at:  0x50003000
+GPIOH memory start at:  0x50009000U
 
 How enable USART1 clock?
 10.8.71  RCC_UART12CKSELR  - allow choosing clock source for usart1, we use
-                             `pll3_q_ck`.
+                             HSI clock.
 10.8.131 RCC_MP_APB6ENSETR - enable clock for usart1
 10.8.132 RCC_MP_APB6ENCLRR - disable clock for usart1
 
@@ -122,7 +122,6 @@ int main(void) {
     rcc_enable_gpio(RCC, GPIO_BANK_H);
   }
 
-  
   // Configure GPIOH for output
   const uint8_t gpioh_pin = 6;
   gpio_set_mode(GPIOH, gpioh_pin, GPIO_MODE_OUTPUT);
@@ -150,7 +149,7 @@ int main(void) {
       }
     }
   }
-  
+
   return 0;
 }
 

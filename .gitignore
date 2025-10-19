@@ -4,6 +4,6 @@
 #*
 *#
 *~
-examples/*/compile_commands.json
+compile_commands.json
 build/*
 third_party/*
