@@ -231,21 +231,4 @@ static inline char uart_read_char(struct uart *uart) {
   return uart->RDR;
 };
 
-static inline uint8_t uart_read_line(struct uart *uart, char *buffer,
-                                     uint8_t buffer_len) {
-  uint8_t i = 0;
-
-  for (; i < buffer_len; i++) {
-    char c = uart_read_char(uart);
-    if (!c || c == '\n') {
-      break;
-    }
-    buffer[i] = c;
-  }
-
-  buffer[i] = 0;
-
-  return i;
-};
-
 #endif

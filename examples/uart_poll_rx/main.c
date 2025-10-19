@@ -70,7 +70,7 @@ void print_banner(struct uart *uart);
 
 int main(void) {
   print_banner(UART4);
-
+  
   { // Enable clock for GPIOB and GPIOC
     rcc_enable_gpio(RCC, GPIO_BANK_B);
     rcc_enable_gpio(RCC, GPIO_BANK_C);
@@ -162,4 +162,6 @@ void print_banner(struct uart *uart) {
   uart_write_str(uart, word);
   uart_write_char(uart, '-');
   uart_write_str(uart, "\r\n");
+
 }
+
