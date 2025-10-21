@@ -110,7 +110,7 @@ static inline void gicd_enable_usart1(struct gicd *gicd) {
 
           6);
 
-  BIT_SET(gicd->IGROUPR[2], // Use x=2
+  BIT_SET(gicd->IGROUPR[2], // Use group1 for usart1
           6);  
 }
 

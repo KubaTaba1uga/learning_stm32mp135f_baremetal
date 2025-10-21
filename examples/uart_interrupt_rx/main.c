@@ -34,20 +34,7 @@ To know IRQ id read GICC_IAR register.
 
 const char word[] = "Hello friend";
 void print_banner(struct uart *uart);
-extern void _STACK_START_(void);
-extern void _Reset(void);
 void default_interrupt_handler(void);
-void dummy_interrupt_handler(void);
-__attribute__((section(".vectors_table"))) void (*const tab[8])(void) = {
-    _Reset,                    // 0x00: Entrypoint
-    dummy_interrupt_handler,   // 0x04: Undefined instruction
-    dummy_interrupt_handler,   // 0x08: Software interrupt (SWI/SVC)
-    dummy_interrupt_handler,   // 0x0C: Prefetch abort
-    dummy_interrupt_handler,   // 0x10: Data abort
-    dummy_interrupt_handler,   // 0x14: Reserved
-    default_interrupt_handler, // 0x18: IRQ interrupt
-    dummy_interrupt_handler,   // 0x1C: FIQ interrupt
-};
 
 int main(void) {
   print_banner(UART4);
@@ -113,19 +100,18 @@ int main(void) {
   gicd_set_cpu0_for_usart1(GICD);
   uart_write_char(UART4, 'a');
   gicd_set_priority_for_usart1(GICD);
-  uart_write_char(UART4, 'b');  
+  uart_write_char(UART4, 'b');
   gicd_enable_usart1(GICD);
   uart_write_char(UART4, 'c');
-  
+
   gicc_set_pmr(GICC);
   uart_write_char(UART4, 'd');
   gicc_enable_cpu(GICC);
   uart_write_char(UART4, 'e');
-  
+
   uart_write_str(USART1, "Done");
   while (1) {
-  
-  }  
+  }
   // Configure GPIOH for output
 
   return 0;
@@ -144,8 +130,6 @@ void print_banner(struct uart *uart) {
 
 void default_interrupt_handler(void) {
   /* uart_write_char(USART1, 'I'); */
-uart_write_char(UART4, 'I');
 
-  };
-
-void dummy_interrupt_handler(void) {};
+  uart_write_char(UART4, 'I');
+};
