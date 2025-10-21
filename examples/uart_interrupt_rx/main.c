@@ -25,6 +25,7 @@ To know IRQ id read GICC_IAR register.
 //
 
 #include "common.h"
+#include "gic.h"
 #include "gpio.h"
 #include "rcc.h"
 #include "uart.h"
@@ -109,8 +110,22 @@ int main(void) {
       Set BPR(binary point) if you use preemption.
       Enable the CPU interface.
   */
-
+  gicd_set_cpu0_for_usart1(GICD);
+  uart_write_char(UART4, 'a');
+  gicd_set_priority_for_usart1(GICD);
+  uart_write_char(UART4, 'b');  
+  gicd_enable_usart1(GICD);
+  uart_write_char(UART4, 'c');
+  
+  gicc_set_pmr(GICC);
+  uart_write_char(UART4, 'd');
+  gicc_enable_cpu(GICC);
+  uart_write_char(UART4, 'e');
+  
   uart_write_str(USART1, "Done");
+  while (1) {
+  
+  }  
   // Configure GPIOH for output
 
   return 0;
@@ -127,6 +142,10 @@ void print_banner(struct uart *uart) {
   uart_write_str(uart, "\r\n");
 }
 
-void default_interrupt_handler(void) { uart_write_char(UART4, 'I'); };
+void default_interrupt_handler(void) {
+  /* uart_write_char(USART1, 'I'); */
+uart_write_char(UART4, 'I');
+
+  };
 
 void dummy_interrupt_handler(void) {};
