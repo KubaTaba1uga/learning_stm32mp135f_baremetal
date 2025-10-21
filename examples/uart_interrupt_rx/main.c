@@ -9,16 +9,31 @@
 First to configure interrupt we need to set interrupt handler address in
 vector table.
 
-When an ARM MCU boots, it reads a so-called "vector table" from the beginning of
-flash memory. A vector table is a concept common to all ARM MCUs. That is an
-array of 32-bit addresses of interrupt handlers. First 16 entries are reserved
-by ARM and are common to all ARM MCUs. The rest of interrupt handlers are
-specific to the given MCU - these are interrupt handlers for peripherals.
+When an ARM MPU executes code first thing it expect is .text section with
+entrypoint. However one can set there also interrupt handlers branching
+and set VBAR to point to that address, from now on the beginning of the
+program memory serves also as vector table for the progam.
 
-According Table 111. STM32MP13xx interrupt mapping for Cortex®-A7 GIC:
+According Table 111. STM32MP13xx interrupt mapping for Cortex-A7 GIC:
 - USART1 IRQ id is 70
 
-To know IRQ id read GICC_IAR register.
+GIC is composed of few elements, we are interested in distributor and CPU
+intrface. Minimal configuration required for interrupt handling is:
+    - Distributor (GICD):
+      Set target CPU (usually CPU0) for USART1’s INTID.
+      Set priority and trigger type (per RM).
+      Enable Enable GIC interrupt for id=70 via (GICD_ISENABLERx)
+
+    - CPU Interface(GICC):
+      Set PMR(priority mask) so your chosen priority is not masked.
+      Set BPR(binary point) if you use preemption.
+      Enable the CPU interface.
+
+Once interrupt is delivered we keen to know IRQ id to do so read GICC_IAR
+register.
+
+Once interrupt is handled we need to acknowledghe end of interrupot via writing
+value wich we got from IAR into GICC_EOIR.
 
 **************************************************************************/
 ///
@@ -37,6 +52,9 @@ void print_banner(struct uart *uart);
 void default_interrupt_handler(void);
 
 int main(void) {
+  uart_write_str(UART4, __func__);
+  uart_write_str(UART4, "\r\n");
+  
   print_banner(UART4);
 
   { // Enable clock for GPIOB and GPIOC
@@ -87,37 +105,26 @@ int main(void) {
     print_banner(USART1);
   }
 
-  /* Distributor (GICD):
-      Set target CPU (usually CPU0) for USART1’s INTID.
-      Set priority and trigger type (per RM).
-      Enable Enable GIC interrupt for id=70 via (GICD_ISENABLERx)
+  { // Configure General interrupt controller
+    gicd_set_cpu0_for_usart1(GICD);
+    gicd_set_priority_for_usart1(GICD);
+    gicd_enable_usart1(GICD);
 
-     CPU Interface(GICC):
-      Set PMR(priority mask) so your chosen priority is not masked.
-      Set BPR(binary point) if you use preemption.
-      Enable the CPU interface.
-  */
-  gicd_set_cpu0_for_usart1(GICD);
-  uart_write_char(UART4, 'a');
-  gicd_set_priority_for_usart1(GICD);
-  uart_write_char(UART4, 'b');
-  gicd_enable_usart1(GICD);
-  uart_write_char(UART4, 'c');
-
-  gicc_set_pmr(GICC);
-  uart_write_char(UART4, 'd');
-  gicc_enable_cpu(GICC);
-  uart_write_char(UART4, 'e');
+    gicc_set_pmr(GICC);
+    gicc_enable_cpu(GICC);
+  }
 
   uart_write_str(USART1, "Done");
   while (1) {
   }
-  // Configure GPIOH for output
 
   return 0;
 }
 
 void print_banner(struct uart *uart) {
+  uart_write_str(UART4, __func__);
+  uart_write_str(UART4, "\r\n");
+  
   for (uint8_t i = 0; i < 32; i++) {
     uart_write_str(uart, "\r\n");
   }
@@ -129,7 +136,20 @@ void print_banner(struct uart *uart) {
 }
 
 void default_interrupt_handler(void) {
-  /* uart_write_char(USART1, 'I'); */
-
+  uart_write_str(UART4, __func__);
+  uart_write_str(UART4, "\r\n");
+  
   uart_write_char(UART4, 'I');
+
+  uint32_t intrrpt_id = GICC->AIAR;
+
+  uart_read_char(USART1);
+  /* uint32_t i= 0xFFFF; */
+  /* while (i--) { */
+  /* } */
+
+  uart_write_char(UART4, 'X');
+
+  GICC->AEOIR = intrrpt_id;
+  /* GICC->DIR = intrrpt_id;   */
 };

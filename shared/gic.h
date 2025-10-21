@@ -105,13 +105,18 @@ static inline void gicd_set_priority_for_usart1(struct gicd *gicd) {
 static inline void gicd_enable_usart1(struct gicd *gicd) {
   // usart1 is id=70
 
-  // 70 = 32 * 2 + 8;
+  // 70 = 16 * 4 + 6;
+  /* BITS_SET(gicd->ICFGR[4], 0b00, 0b11,   */
+  /* 	   12); // Set edged triggered interrupt */
+
+  // 70 = 32 * 2 + 6;
   BIT_SET(gicd->ISENABLER[2], // Use x=2
 
           6);
 
   BIT_SET(gicd->IGROUPR[2], // Use group1 for usart1
-          6);  
+          6);
+
 }
 
 static inline void gicc_set_pmr(struct gicc *gicc) {
@@ -119,7 +124,9 @@ static inline void gicc_set_pmr(struct gicc *gicc) {
 }
 
 static inline void gicc_enable_cpu(struct gicc *gicc) {
-  BIT_SET(gicc->CTLRNS, 1);
+  BIT_SET(gicc->CTLRNS, 0);
+  BIT_SET(gicc->CTLRNS, 5);  
+  BIT_SET(gicc->CTLRNS, 9);  
 }
 
 
