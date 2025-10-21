@@ -49,7 +49,6 @@ __attribute__((section(".vectors_table"))) void (*const tab[8])(void) = {
 };
 
 int main(void) {
-
   print_banner(UART4);
 
   { // Enable clock for GPIOB and GPIOC
@@ -100,10 +99,6 @@ int main(void) {
     print_banner(USART1);
   }
 
-  { // Enable GPIOH
-    rcc_enable_gpio(RCC, GPIO_BANK_H);
-  }
-
   /* Distributor (GICD):
       Set target CPU (usually CPU0) for USART1’s INTID.
       Set priority and trigger type (per RM).
@@ -115,33 +110,8 @@ int main(void) {
       Enable the CPU interface.
   */
 
+  uart_write_str(USART1, "Done");
   // Configure GPIOH for output
-  const uint8_t gpioh_pin = 6;
-  gpio_set_mode(GPIOH, gpioh_pin, GPIO_MODE_OUTPUT);
-
-  { // Simulate console on USART1
-    while (true) {
-      uart_write_str(USART1, "> ");
-
-      char lc = 0;
-      while (true) {
-        char c = uart_read_char(USART1);
-        if (c == '\n' || c == '\r') {
-          uart_write_str(USART1, "\r\n");
-          { // Switch LED on/off
-            if (lc == 'H') {
-              gpio_set_pin(GPIOH, gpioh_pin);
-            } else if (lc == 'L') {
-              gpio_clear_pin(GPIOH, gpioh_pin);
-            }
-          }
-          break;
-        }
-        uart_write_char(USART1, c);
-        lc = c;
-      }
-    }
-  }
 
   return 0;
 }
