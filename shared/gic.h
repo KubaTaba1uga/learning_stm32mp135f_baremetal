@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-struct gic {
+struct gicd {
   union {
     volatile uint32_t CTLR;
     volatile uint32_t CTLRNS;
@@ -49,5 +49,34 @@ struct gic {
   volatile uint32_t PIDR3;
   volatile uint32_t CIDR[4];
 };
+
+struct gicc {
+  union {
+    volatile uint32_t CTLR;
+    volatile uint32_t CTLRNS;
+  };
+  volatile uint32_t PMR;
+  volatile uint32_t BPR;
+  volatile uint32_t BPRNS;
+  volatile uint32_t IAR;
+  volatile uint32_t EOIR;
+  volatile uint32_t RPR;
+  volatile uint32_t HPPIR;
+  volatile uint32_t ABPR;  
+  volatile uint32_t AIAR;  
+  volatile uint32_t AEOIR;
+  volatile uint32_t AHPPIR;
+  volatile uint8_t _reserved[160];
+  volatile uint32_t APR0;
+  volatile uint8_t _reserved1[12];
+  volatile uint32_t NSAPR0;
+  volatile uint8_t _reserved2[24];
+  volatile uint32_t IIDR;
+  volatile uint8_t _reserved3[3840];        
+  volatile uint32_t DIR;  
+};
+
+
+
 
 #endif // GIC_H
