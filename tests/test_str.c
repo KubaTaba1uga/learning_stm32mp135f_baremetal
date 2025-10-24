@@ -36,6 +36,14 @@ void test_str() {
   TEST_ASSERT_EQUAL(200,number);  
   mystrcpy(buffer, "999");
    number = numdump_str(buffer, 255);
-  TEST_ASSERT_EQUAL(999,number);  
-  
+  TEST_ASSERT_EQUAL(999,number);
+
+
+  mystrcpy(buffer, "memread20");
+  number = numdump_str(buffer, 255);
+  TEST_ASSERT_EQUAL(20,number);
+
+  mystrcpy(buffer, "memread10\r\n");
+  number = numdump_str(buffer, 255);
+  TEST_ASSERT_EQUAL(10,number);  
 }

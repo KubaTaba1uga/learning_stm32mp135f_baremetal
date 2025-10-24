@@ -45,6 +45,8 @@ static inline char *cli_get_cmd(char *str, uint32_t count) {
       putchar(8);
     } else if (str[i] >= 33 && str[i] <= 126) {
       putchar(str[i]);
+    }else if(str[i] == ' ') {
+      putchar(str[i]);
     } else {
       i--;
     }
