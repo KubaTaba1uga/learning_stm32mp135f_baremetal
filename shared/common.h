@@ -57,5 +57,42 @@ static inline char *strdump_number(uint32_t number, char *buffer,
   return start;
 }
 
+static inline uint32_t numdump_str( char *buffer,
+                                             uint32_t buffer_len) {
+  char *addr_str_start = NULL;
+  char *addr_str_end = NULL;
+  uint32_t addr_val = 0;
+
+  for (uint32_t i = 0; i < buffer_len; i++) {
+    if (buffer[i] >= 48 && buffer[i] <= 57) {
+      if (!addr_str_start) {        
+        addr_str_start = buffer + i;
+      }
+      continue;
+    }
+
+    if (addr_str_start) {
+      addr_str_end = buffer + i ;
+      break;
+    }
+  }
+
+  if (!addr_str_start || !addr_str_end) {
+    return -1;
+  }
+  
+  for (uint32_t i = 1; addr_str_start != addr_str_end--; i *= 10) {
+    uint32_t val = *addr_str_end - 48;
+    if (i > 1) {
+      addr_val += val * i;
+    } else {
+      addr_val += val;
+    }
+  }
+
+  return addr_val;
+}
+
+
 
 #endif // COMMON_H
