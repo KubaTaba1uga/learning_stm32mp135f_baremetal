@@ -31,4 +31,11 @@ enum GPIO_BANK {
 
 #define BIT_CLEAR(reg, bit) BITS_CLEAR(reg, 1U, bit)
 
+#define true 1
+#define false 0
+
+typedef uint8_t bool;
+
+#define NULL 0
+
 #endif // COMMON_H

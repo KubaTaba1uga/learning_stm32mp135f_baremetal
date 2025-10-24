@@ -1,0 +1,51 @@
+#ifndef STDLIB_H
+#define STDLIB_H
+
+#include "uart.h"
+#include <stdint.h>
+
+extern struct uart *stdout;
+
+static inline char getchar(void) { return uart_read_char(stdout); }
+static inline void putchar(char c) {  uart_write_char(stdout, c); }
+
+static inline int puts(char *str) {
+  uint32_t i = 0;
+  while (*str) {
+    uart_write_char(stdout, *str++);
+    i++;
+  }
+
+  uart_write_str(stdout, "\r\n");
+  i += 2;
+
+  return i;
+};
+
+static inline void print(char *str) { uart_write_str(stdout, str); };
+
+static inline char *gets(char *str, uint32_t count, bool echo) {
+  uint32_t max = count - 1;
+  for (uint32_t i = 0; i < max; i++) {
+    str[i] = uart_read_char(stdout);
+
+    if (str[i] == '\r') {
+      str[i + 1] = 0;
+      break;
+    }
+    if (str[i] == 10) {
+      uart_write_str(stdout,"BACKSPACE!!");
+
+    }
+
+    if (echo) {
+      uart_write_char(stdout, str[i]);
+    }
+  }
+
+  str[max] = 0; // In case there is no newline
+
+  return str;
+};
+
+#endif
