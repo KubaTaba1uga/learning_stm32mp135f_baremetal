@@ -38,4 +38,24 @@ typedef uint8_t bool;
 
 #define NULL 0
 
+static inline char *strdump_number(uint32_t number, char *buffer,
+                                             uint32_t buffer_len) {
+  char *start = buffer + (buffer_len - 1);
+  *start = 0;
+
+  for (uint32_t i = 1; start != buffer; i *= 10) {
+    if (i > number) {
+      break;
+    }
+
+    uint32_t div = (number / i) % 10;
+
+    start--;
+    *start = div + 48;
+  }
+
+  return start;
+}
+
+
 #endif // COMMON_H

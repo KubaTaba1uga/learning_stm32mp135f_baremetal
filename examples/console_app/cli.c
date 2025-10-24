@@ -1,5 +1,6 @@
 #include "common.h"
 #include "help.h"
+#include "memread.h"
 #include "stdlib.h"
 #include <stdint.h>
 
@@ -56,7 +57,8 @@ static inline char *cli_get_cmd(char *str, uint32_t count) {
 
 static inline int cli_run_cmd(char *str, uint32_t count) {
   struct cli_cmd cmds[] = {
-      {.id = "help", .main = cmd_help},
+    {.id = "help", .main = cmd_help},
+      {.id = "memread", .main = cmd_memread},    
   };
 
   for (uint32_t i = 0; i < sizeof(cmds) / sizeof(struct cli_cmd); i++) {
