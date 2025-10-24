@@ -7,7 +7,7 @@
 extern struct uart *stdout;
 
 static inline char getchar(void) { return uart_read_char(stdout); }
-static inline void putchar(char c) {  uart_write_char(stdout, c); }
+static inline void putchar(char c) { uart_write_char(stdout, c); }
 
 static inline int puts(char *str) {
   uint32_t i = 0;
@@ -34,8 +34,7 @@ static inline char *gets(char *str, uint32_t count, bool echo) {
       break;
     }
     if (str[i] == 10) {
-      uart_write_str(stdout,"BACKSPACE!!");
-
+      uart_write_str(stdout, "BACKSPACE!!");
     }
 
     if (echo) {
@@ -46,6 +45,29 @@ static inline char *gets(char *str, uint32_t count, bool echo) {
   str[max] = 0; // In case there is no newline
 
   return str;
+};
+
+int strncmp(const char *lhs, const char *rhs, uint32_t count) {
+  for (uint32_t i = 0; i < count; i++) {
+    if (lhs[i] == 0 || rhs[i] == 0) {
+      break;
+    }
+
+    if (lhs[i] != rhs[i]) {
+      return 1;
+    }
+  }
+
+  return 0;
+};
+
+uint32_t strlen(const char *str) {
+  uint32_t i = 0;
+  while (*str++) {
+    i++;
+  }
+
+  return i;
 };
 
 #endif
