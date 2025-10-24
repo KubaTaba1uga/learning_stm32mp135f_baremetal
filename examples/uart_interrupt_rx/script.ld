@@ -45,7 +45,6 @@ SECTIONS {
        _HEAP_END_ = .;
      } > RAM
 
-
      /* Declare 8MB IRQ stack */
      IRQ_STACK_SIZE = 8M;
      . = ORIGIN(RAM) + LENGTH(RAM) - STACK_SIZE - IRQ_STACK_SIZE;
