@@ -9,7 +9,9 @@ static inline int cmd_help(char *str, uint32_t count) {
       "Welcome in console app example :)\r\n"
       "Available commands are:\r\n"
       " - help\r\n"
-      "   Display all available commands and their usage descriptions.\r\n";
+      "   Display all available commands and their usage descriptions.\r\n"
+      " - memread <addr>\r\n"
+      "   Show value under the memory address.\r\n";
 
   puts(help_string);
 

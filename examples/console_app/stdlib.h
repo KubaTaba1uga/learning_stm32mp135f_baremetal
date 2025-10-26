@@ -70,4 +70,8 @@ uint32_t strlen(const char *str) {
   return i;
 };
 
+bool isdigit(char c) { return (c >= 48) && (c <= 57); }
+
+
+
 #endif
