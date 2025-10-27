@@ -9,7 +9,7 @@ extern struct uart *stdout;
 static inline char getchar(void) { return uart_read_char(stdout); }
 static inline void putchar(char c) { uart_write_char(stdout, c); }
 
-static inline int puts(char *str) {
+static inline int puts(const char *str) {
   uint32_t i = 0;
   while (*str) {
     uart_write_char(stdout, *str++);
@@ -71,7 +71,5 @@ uint32_t strlen(const char *str) {
 };
 
 bool isdigit(char c) { return (c >= 48) && (c <= 57); }
-
-
 
 #endif

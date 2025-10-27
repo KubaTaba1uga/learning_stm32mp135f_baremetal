@@ -1,26 +1,32 @@
 #ifndef HELP_H
 #define HELP_H
 
-#include "stdlib.h"
 #include <stdint.h>
 
+#include "stdlib.h"
+
 static inline int cmd_help(char *str, uint32_t count) {
-  char *help_string =
-      "Welcome in console app example :)\r\n"
+  const char *help_string =
+      "Welcome to the console app example :)\r\n"
       "\r\n"
-      "Available commands are:\r\n"
+      "Available commands:\r\n"
       " - help\r\n"
-      "   Display all available commands and their usage descriptions.\r\n"
+      "   Display a list of available commands and their usage.\r\n"
+      "\r\n"
       " - memread [-d] <addr>\r\n"
-      "   Show value under the memory address. The memory addres hass to be\r\n"
-      "   represented as hex value using only uppercase letters.\r\n"
-      "   Flags are meant to control how output is presented, by default\r\n"
-      "   hex is used, by passing `-d` flag one can output value\r\n"
-      "   as decimal.\r\n";
+      "   Read the value at the specified memory address.\r\n"
+      "   The address must be given as a hexadecimal value using only\r\n"
+      "   uppercase letters.\r\n"
+      "   Flags control the output format: by default, values are shown\r\n"
+      "   in hexadecimal. Use the `-d` flag to display values in decimal.\r\n"
+      "\r\n"
+      " - memwrite <addr> <value>\r\n"
+      "   Write a value to the specified memory address.\r\n"
+      "   Both the address and value must be specified as hexadecimal\r\n"
+      "   numbers using uppercase letters.\r\n";
 
   puts(help_string);
-
   return 0;
-};
+}
 
 #endif

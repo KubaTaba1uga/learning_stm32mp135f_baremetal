@@ -12,11 +12,11 @@ static inline int cmd_memread(char *str, uint32_t count) {
   char *digits = NULL;
 
   for (uint32_t i = 0; i < count; i++) {
-    if (isdigit(str[i]) && !digits) {
-      digits = str + i;
+    if (i >= 2 && str[i - 2] == '0' && str[i - 1] == 'x') {
+      digits = str + i - 2;
     }
 
-    if (str[i]=='\r'||str[i]=='\n') {
+    if (str[i] == '\r' || str[i] == '\n') {
       str[i] = 0;
     }
 
@@ -27,8 +27,18 @@ static inline int cmd_memread(char *str, uint32_t count) {
     }
   }
 
+  // Detect lowercase letters
+  /* for (char *digits_cp = digits; *digits_cp != 0; digits_cp++) { */
+  /*   if (*digits_cp >= 97 && *digits_cp <= 122) { */
+  /*     puts("You have to use uppercase letters in memory address."); */
+  /*     puts("For example: memread 0xC0300000"); */
+  /*     return ERROR_INVALID_INPUT; */
+  /*   } */
+  /* } */
+
   if (!digits) {
     puts("You have to provide a memory address.");
+    puts("For example: memread 0xC0300000");
     return ERROR_INVALID_INPUT;
   }
 
@@ -54,8 +64,7 @@ static inline int cmd_memread(char *str, uint32_t count) {
   print("*(uint32_t *)");
   print(digits);
   print(" = ");
-  print(result);
-  puts("\r\n");
+  puts(result);
 
   return 0;
 };

@@ -1,8 +1,10 @@
+#include <stdint.h>
+
 #include "common.h"
 #include "help.h"
 #include "memread.h"
+#include "memwrite.h"
 #include "stdlib.h"
-#include <stdint.h>
 
 struct cli_cmd {
   const char *id;
@@ -13,11 +15,20 @@ static inline char *cli_get_cmd(char *str, uint32_t count);
 static inline int cli_run_cmd(char *str, uint32_t count);
 
 void cli_run(void) {
-  char *prompt = "> ";
   char buffer[255];
 
+  puts("\r\n"
+       "==========================================\r\n"
+       "|                                        |\r\n"
+       "|           Console App Example          |\r\n"
+       "|                                        |\r\n"
+       "==========================================\r\n"
+       "\r\n"
+       "Type `help` to view the list of available commands.\r\n"
+       "\r\n");
+
   while (true) {
-    print(prompt);
+    print("> ");
     cli_get_cmd(buffer, sizeof(buffer) / sizeof(char));
     print("\r\n");
 
@@ -45,7 +56,7 @@ static inline char *cli_get_cmd(char *str, uint32_t count) {
       putchar(8);
     } else if (str[i] >= 33 && str[i] <= 126) {
       putchar(str[i]);
-    }else if(str[i] == ' ') {
+    } else if (str[i] == ' ') {
       putchar(str[i]);
     } else {
       i--;
@@ -59,8 +70,9 @@ static inline char *cli_get_cmd(char *str, uint32_t count) {
 
 static inline int cli_run_cmd(char *str, uint32_t count) {
   struct cli_cmd cmds[] = {
-    {.id = "help", .main = cmd_help},
-      {.id = "memread", .main = cmd_memread},    
+      {.id = "help", .main = cmd_help},
+      {.id = "memread", .main = cmd_memread},
+      {.id = "memwrite", .main = cmd_memwrite},
   };
 
   for (uint32_t i = 0; i < sizeof(cmds) / sizeof(struct cli_cmd); i++) {
@@ -72,6 +84,6 @@ static inline int cli_run_cmd(char *str, uint32_t count) {
   print("Invalid command: ");
   print(str);
   puts("Try `help`");
-  
+
   return ERROR_NO_ENTRY;
 }
