@@ -1,14 +1,17 @@
 #include "common.h"
 #include "unity.h"
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 
 void mystrcpy(char *dst, const char *src) {
-  while (*src) {
+  while (*src != 0) {
     *dst = *src;
     dst++;
     src++;
   }
+
+  *dst = *src;
 }
 
 void test_decimal_str() {
@@ -63,7 +66,7 @@ void test_hex_str() {
 
   result = hex_to_str(0xFFF, buffer, 255);
   TEST_ASSERT_EQUAL_STRING_LEN("0xFFF", result, strlen("0xFFF"));
-  
+
   mystrcpy(buffer, "0x10");
   uint32_t number = hex_to_number(buffer, 255);
   TEST_ASSERT_EQUAL(0x10, number);
@@ -79,4 +82,12 @@ void test_hex_str() {
   mystrcpy(buffer, "0x999");
   number = hex_to_number(buffer, 255);
   TEST_ASSERT_EQUAL(0x999, number);
+
+  mystrcpy(buffer, "0xAA");
+  number = hex_to_number(buffer, 255);
+  TEST_ASSERT_EQUAL(0xAA, number);
+
+  mystrcpy(buffer, "0xFFF");
+  number = hex_to_number(buffer, 255);
+  TEST_ASSERT_EQUAL(0xFFF, number);
 }

@@ -37,7 +37,9 @@ enum GPIO_BANK {
 
 typedef uint8_t bool;
 
+#ifndef NULL
 #define NULL ((void *)0)
+#endif // NULL
 
 static inline char *number_to_str(uint32_t number, char *buffer,
                                   uint32_t buffer_len) {
@@ -148,10 +150,10 @@ static inline uint32_t hex_to_number(char *buffer, uint32_t buffer_len) {
 
   for (uint32_t i = 1; addr_str_start != addr_str_end--; i *= 16) {
     uint32_t val;    
-    if (*addr_str_end >= 65 && *addr_str_end <= 70) {
-      val = *addr_str_end - 65 + 10;
-    } else {
+    if (*addr_str_end >= 48 && *addr_str_end <= 57) {
       val = *addr_str_end - 48;
+    } else {
+      val = *addr_str_end - 65 + 10;
     }
 
     if (i > 1) {
