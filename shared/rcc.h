@@ -1,7 +1,6 @@
 #ifndef RCC_H
 #define RCC_H
 
-#include <stdbool.h>
 #include <stdint.h>
 
 #include "common.h"
