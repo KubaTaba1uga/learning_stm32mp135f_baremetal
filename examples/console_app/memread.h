@@ -6,7 +6,7 @@
 #ifndef MEMREAD_H
 #define MEMREAD_H
 
-#include "common.h"
+#include "string.h"
 #include "stdlib.h"
 #include <stdint.h>
 
@@ -35,16 +35,17 @@ static inline int cmd_memread(char *str, uint32_t count) {
   if (!is_hex) {
     addr_val = str_to_number(str, count);
   } else {
-    /* addr_val = hex_to_number(str, count); */
-    addr_val = 0x100000;
+    addr_val = hex_to_number(str, count);
   }
+
+  uint32_t mem_val = *((uint32_t *)addr_val);
 
   print("Your number is: ");
 
   if (!is_hex) {
-    result = number_to_str(addr_val, buffer, sizeof(buffer));
+    result = number_to_str(mem_val, buffer, sizeof(buffer));
   } else {
-    result = hex_to_str(addr_val, buffer, sizeof(buffer));
+    result = hex_to_str(mem_val, buffer, sizeof(buffer));
   }
 
   print(result);

@@ -10,8 +10,10 @@ static inline int cmd_help(char *str, uint32_t count) {
       "Available commands are:\r\n"
       " - help\r\n"
       "   Display all available commands and their usage descriptions.\r\n"
-      " - memread <addr>\r\n"
-      "   Show value under the memory address.\r\n";
+      " - memread [-x] <addr>\r\n"
+      "   Show value under the memory address. By default treat input as\r\n"
+      "   decimal value, if `-x` passed input is treated as hex.\r\n"
+      ;
 
   puts(help_string);
 

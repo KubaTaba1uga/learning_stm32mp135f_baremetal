@@ -1,8 +1,9 @@
-#include "common.h"
-#include "unity.h"
 #include <stdint.h>
-#include <stdio.h>
 #include <string.h>
+
+#include "string.h"
+#include "unity.h"
+
 
 void mystrcpy(char *dst, const char *src) {
   while (*src != 0) {
@@ -47,25 +48,25 @@ void test_hex_str() {
   char buffer[255];
 
   char *result = hex_to_str(0x10, buffer, 255);
-  TEST_ASSERT_EQUAL_STRING_LEN("0x10", result, strlen("0x10"));
+  TEST_ASSERT_EQUAL_STRING_LEN("0x00000010", result, 2+8);
 
   result = hex_to_str(0x20, buffer, 255);
-  TEST_ASSERT_EQUAL_STRING_LEN("0x20", result, strlen("0x20"));
+  TEST_ASSERT_EQUAL_STRING_LEN("0x00000020", result, 2+8);
 
   result = hex_to_str(0x12, buffer, 255);
-  TEST_ASSERT_EQUAL_STRING_LEN("0x12", result, strlen("0x12"));
+  TEST_ASSERT_EQUAL_STRING_LEN("0x00000012", result, 2+8);
 
   result = hex_to_str(0x100000, buffer, 255);
-  TEST_ASSERT_EQUAL_STRING_LEN("0x100000", result, strlen("0x100000"));
+  TEST_ASSERT_EQUAL_STRING_LEN("0x00100000", result, 2+8);
 
   result = hex_to_str(0xA, buffer, 255);
-  TEST_ASSERT_EQUAL_STRING_LEN("0xA", result, strlen("0xA"));
+  TEST_ASSERT_EQUAL_STRING_LEN("0x0000000A", result, 2+8);
 
   result = hex_to_str(0xBB, buffer, 255);
-  TEST_ASSERT_EQUAL_STRING_LEN("0xBB", result, strlen("0xBB"));
+  TEST_ASSERT_EQUAL_STRING_LEN("0x000000BB", result, 2+8);
 
   result = hex_to_str(0xFFF, buffer, 255);
-  TEST_ASSERT_EQUAL_STRING_LEN("0xFFF", result, strlen("0xFFF"));
+  TEST_ASSERT_EQUAL_STRING_LEN("0x00000FFF", result, 2+8);
 
   mystrcpy(buffer, "0x10");
   uint32_t number = hex_to_number(buffer, 255);
