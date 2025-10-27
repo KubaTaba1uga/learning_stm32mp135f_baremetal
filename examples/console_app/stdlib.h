@@ -1,8 +1,9 @@
 #ifndef STDLIB_H
 #define STDLIB_H
 
-#include "uart.h"
 #include <stdint.h>
+
+#include "uart.h"
 
 extern struct uart *stdout;
 
@@ -28,15 +29,10 @@ static inline char *gets(char *str, uint32_t count, bool echo) {
   uint32_t max = count - 1;
   for (uint32_t i = 0; i < max; i++) {
     str[i] = uart_read_char(stdout);
-
-    if (str[i] == '\r') {
-      str[i + 1] = 0;
+    if (str[i] == '\r' ||str[i] == '\n' ) {
+      str[i] = 0;
       break;
     }
-    if (str[i] == 10) {
-      uart_write_str(stdout, "BACKSPACE!!");
-    }
-
     if (echo) {
       uart_write_char(stdout, str[i]);
     }
@@ -70,6 +66,8 @@ uint32_t strlen(const char *str) {
   return i;
 };
 
-bool isdigit(char c) { return (c >= 48) && (c <= 57); }
+bool isdigit(char c) { return (c >= '0') && (c <= '9'); }
+bool islower(char c) { return (c >= 'a') && (c <= 'z'); }
+bool isupper(char c) { return (c >= 'A') && (c <= 'Z'); }
 
 #endif
