@@ -58,7 +58,7 @@ static inline int cmd_memwrite(char *str, uint32_t count) {
 };
 
 static inline bool __cmd_memwrite_is_valid_hex(char *str) {
-  if (!str) {
+  if (!str || strlen(str) <= 2) {
     puts("You have to provide a memory address and it's value.");
     puts("For example: memwrite 0xC0300000 0x20");
     return false;
