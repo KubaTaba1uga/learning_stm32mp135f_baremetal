@@ -8,15 +8,19 @@ static inline char *number_to_str(uint32_t number, char *buffer,
   char *start = buffer + (buffer_len - 1);
   *start = 0;
 
-  for (uint32_t i = 1; start != buffer; i *= 10) {
-    if (i > number) {
-      break;
-    }
-
+  for (uint32_t i = 1, j = 0; start != buffer; i *= 10) {
     uint32_t div = (number / i) % 10;
 
     start--;
     *start = div + 48;
+
+    if (++j == 10) { // Break if we have 32 bits.
+      break;
+    }
+  }
+
+  while (*start == '0') {
+    start++;
   }
 
   return start;
@@ -29,6 +33,7 @@ static inline char *hex_to_str(uint32_t number, char *buffer,
 
   for (uint32_t i = 1, j = 0; start != buffer; i *= 16) {
     uint32_t div = (number / i) % 16;
+
     start--;
     if (div <= 9) {
       *start = div + 48;
@@ -39,6 +44,10 @@ static inline char *hex_to_str(uint32_t number, char *buffer,
     if (++j == 8 || !*start) { // Break if we have 32 bits.
       break;
     }
+  }
+
+  while (*start == '0') {
+    start++;
   }
 
   start--;

@@ -48,25 +48,25 @@ void test_hex_str() {
   char buffer[255];
 
   char *result = hex_to_str(0x10, buffer, 255);
-  TEST_ASSERT_EQUAL_STRING_LEN("0x00000010", result, 2+8);
+  TEST_ASSERT_EQUAL_STRING_LEN("0x10", result, 2+2);
 
   result = hex_to_str(0x20, buffer, 255);
-  TEST_ASSERT_EQUAL_STRING_LEN("0x00000020", result, 2+8);
+  TEST_ASSERT_EQUAL_STRING_LEN("0x20", result, 2+2);
 
   result = hex_to_str(0x12, buffer, 255);
-  TEST_ASSERT_EQUAL_STRING_LEN("0x00000012", result, 2+8);
+  TEST_ASSERT_EQUAL_STRING_LEN("0x12", result, 2+2);
 
   result = hex_to_str(0x100000, buffer, 255);
-  TEST_ASSERT_EQUAL_STRING_LEN("0x00100000", result, 2+8);
+  TEST_ASSERT_EQUAL_STRING_LEN("0x100000", result, 2+5);
 
   result = hex_to_str(0xA, buffer, 255);
-  TEST_ASSERT_EQUAL_STRING_LEN("0x0000000A", result, 2+8);
+  TEST_ASSERT_EQUAL_STRING_LEN("0xA", result, 2+1);
 
   result = hex_to_str(0xBB, buffer, 255);
-  TEST_ASSERT_EQUAL_STRING_LEN("0x000000BB", result, 2+8);
+  TEST_ASSERT_EQUAL_STRING_LEN("0xBB", result, 2+2);
 
   result = hex_to_str(0xFFF, buffer, 255);
-  TEST_ASSERT_EQUAL_STRING_LEN("0x00000FFF", result, 2+8);
+  TEST_ASSERT_EQUAL_STRING_LEN("0xFFF", result, 2+3);
 
   mystrcpy(buffer, "0x10");
   uint32_t number = hex_to_number(buffer, 255);

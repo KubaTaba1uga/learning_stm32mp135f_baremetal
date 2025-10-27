@@ -1,8 +1,3 @@
-/*
-  TO-DO:
-     1. Add hexadecimal input.
-*/
-
 #ifndef MEMREAD_H
 #define MEMREAD_H
 
@@ -13,12 +8,16 @@
 static inline int cmd_memread(char *str, uint32_t count) {
   char *(*func[])(uint32_t value, char *str, uint32_t count) = {number_to_str};
   char *flags[sizeof(func) / sizeof(void *)] = {"-d"};
-  bool is_flag[sizeof(func) / sizeof(void *)] = {};
+  bool is_flag[sizeof(func) / sizeof(void *)] = {false};
   char *digits = NULL;
 
   for (uint32_t i = 0; i < count; i++) {
     if (isdigit(str[i]) && !digits) {
       digits = str + i;
+    }
+
+    if (str[i]=='\r'||str[i]=='\n') {
+      str[i] = 0;
     }
 
     for (uint32_t flag = 0; flag < sizeof(flags) / sizeof(void *); flag++) {
@@ -52,7 +51,9 @@ static inline int cmd_memread(char *str, uint32_t count) {
     result = hex_to_str(mem_val, buffer, sizeof(buffer) / sizeof(char));
   }
 
-  print("Your number is: ");
+  print("*(uint32_t *)");
+  print(digits);
+  print(" = ");
   print(result);
   puts("\r\n");
 
