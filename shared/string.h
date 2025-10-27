@@ -1,8 +1,7 @@
-#ifndef STRINGG_H
-#define STRINGG_H
+#ifndef STRING_H
+#define STRING_H
 
 #include <common.h>
-#include <stdio.h>
 
 static inline char *number_to_str(uint32_t number, char *buffer,
                                   uint32_t buffer_len) {
@@ -27,7 +26,7 @@ static inline char *hex_to_str(uint32_t number, char *buffer,
                                uint32_t buffer_len) {
   char *start = buffer + (buffer_len - 1);
   *start = 0;
-  
+
   for (uint32_t i = 1, j = 0; start != buffer; i *= 16) {
     uint32_t div = (number / i) % 16;
     start--;
@@ -40,7 +39,6 @@ static inline char *hex_to_str(uint32_t number, char *buffer,
     if (++j == 8 || !*start) { // Break if we have 32 bits.
       break;
     }
-    
   }
 
   start--;

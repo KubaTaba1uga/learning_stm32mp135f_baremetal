@@ -6,20 +6,25 @@
 #ifndef MEMREAD_H
 #define MEMREAD_H
 
-#include "string.h"
 #include "stdlib.h"
+#include "string.h"
 #include <stdint.h>
 
 static inline int cmd_memread(char *str, uint32_t count) {
+  char *(*func[])(uint32_t value, char *str, uint32_t count) = {number_to_str};
+  char *flags[sizeof(func) / sizeof(void *)] = {"-d"};
+  bool is_flag[sizeof(func) / sizeof(void *)] = {};
   char *digits = NULL;
-  bool is_hex = false;
+
   for (uint32_t i = 0; i < count; i++) {
     if (isdigit(str[i]) && !digits) {
       digits = str + i;
     }
 
-    if (i >= 1 && str[i] == 'x' && str[i - 1] == '-') {
-      is_hex = true;
+    for (uint32_t flag = 0; flag < sizeof(flags) / sizeof(void *); flag++) {
+      if (i >= 1 && str[i] == flags[flag][1] && str[i - 1] == flags[flag][0]) {
+        is_flag[flag] = true;
+      }
     }
   }
 
@@ -28,26 +33,26 @@ static inline int cmd_memread(char *str, uint32_t count) {
     return ERROR_INVALID_INPUT;
   }
 
+  char *result = NULL;
   uint32_t addr_val;
   char buffer[255];
-  char *result;
 
-  if (!is_hex) {
-    addr_val = str_to_number(str, count);
-  } else {
-    addr_val = hex_to_number(str, count);
-  }
+  addr_val = hex_to_number(str, count);
 
   uint32_t mem_val = *((uint32_t *)addr_val);
 
-  print("Your number is: ");
-
-  if (!is_hex) {
-    result = number_to_str(mem_val, buffer, sizeof(buffer));
-  } else {
-    result = hex_to_str(mem_val, buffer, sizeof(buffer));
+  for (uint32_t flag = 0; flag < sizeof(flags) / sizeof(void *); flag++) {
+    if (is_flag[flag]) {
+      result = func[flag](mem_val, buffer, sizeof(buffer) / sizeof(char));
+      break;
+    }
   }
 
+  if (!result) {
+    result = hex_to_str(mem_val, buffer, sizeof(buffer) / sizeof(char));
+  }
+
+  print("Your number is: ");
   print(result);
   puts("\r\n");
 
