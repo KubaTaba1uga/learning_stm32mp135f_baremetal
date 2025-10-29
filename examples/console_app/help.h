@@ -23,7 +23,11 @@ static inline int cmd_help(char *str, uint32_t count) {
       " - memwrite <addr> <value>\r\n"
       "   Write a value to the specified memory address.\r\n"
       "   Both the address and value must be specified as hexadecimal\r\n"
-      "   numbers using uppercase letters.\r\n";
+      "   numbers using uppercase letters.\r\n"
+      "\r\n"
+      " - sleep <seconds>\r\n"
+      "   Wait number of seconds.\r\n"
+      "   Seconds value must be represented as decimal number.\r\n";
 
   puts(help_string);
   return 0;

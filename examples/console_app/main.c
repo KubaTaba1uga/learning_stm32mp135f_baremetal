@@ -22,9 +22,11 @@
 #include "cli.h"
 #include "uart.h"
 
-struct uart *stdout = UART4;
+struct uart *stdout;
 
 int main(void) {
+  stdout = UART4;
+  
   cli_run();
 
   return 0;

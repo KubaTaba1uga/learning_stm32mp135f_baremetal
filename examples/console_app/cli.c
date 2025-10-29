@@ -5,6 +5,7 @@
 #include "memread.h"
 #include "memwrite.h"
 #include "stdlib.h"
+#include "sleep.h"
 
 struct cli_cmd {
   const char *id;
@@ -70,9 +71,10 @@ static inline char *cli_get_cmd(char *str, uint32_t count) {
 
 static inline int cli_run_cmd(char *str, uint32_t count) {
   struct cli_cmd cmds[] = {
-      {.id = "help", .main = cmd_help},
-      {.id = "memread", .main = cmd_memread},
-      {.id = "memwrite", .main = cmd_memwrite},
+    {.id = "help", .main = cmd_help},
+    {.id = "memread", .main = cmd_memread},
+    {.id = "memwrite", .main = cmd_memwrite},
+    {.id = "sleep", .main = cmd_sleep},    
   };
 
   for (uint32_t i = 0; i < sizeof(cmds) / sizeof(struct cli_cmd); i++) {

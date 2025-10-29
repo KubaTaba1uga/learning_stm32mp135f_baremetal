@@ -1,50 +1,6 @@
-//
-///
-////
-/////
-/**************************************************************************
+#ifndef SLEEP_H
+#define SLEEP_H
 
-                                BASIC TIMERS
-
-Example demonstrates basic timers control on STM32MP135.
-
-The quality of timer can be checked via `sudo ./shared/time.expect`.
-
-NOTES:
-   Basic timers are TIM6 and TIM7.
-
-   First thing to do is to select appropriate clock for TIMx via RCC
-   and enable it via (RCC_MP_APB1ENSETR 0x700 (1U << 4)
-
-   TIM 6 and 7 are connected to APB1. To control the frequency of their clocks
-we need to use APB1DIV and TIMG1PRE.
-
-   To enable clocks use TIM6EN.
-
-
-             mlahbss_ck            pclk1
-   MLAHBDIV -----------> APB1DIV --------> APB1
-
-   We need to find out wich clock is set in (RCC_MSSCKSELR) 0x548
-
-   One can select MLAHB src to be one of:
-     HSI (64MHz) clock - default
-     HSE clock
-     CSI clock
-     PLL3 clock
-
-   Once we have 64MHZ we can set MLAHBDIV to not divideso we have 64000000HZ.
-
-   Once we have 64MHZ we can set APB1DIV to divide by 16 so we have
-   64MHZ/16 = 4MHZ.
-
-   Then we set prescaler to 4000 wich gives us 4MHz/4000=1KHZ
-
-   To set clock to HSI i changed device tree in optee.
-
-**************************************************************************/
-///
-//
 #include <stdint.h>
 
 #include "common.h"
@@ -52,16 +8,11 @@ we need to use APB1DIV and TIMG1PRE.
 #include "stdlib.h"
 #include "string.h"
 #include "tim.h"
-#include "uart.h"
 
-struct uart *stdout = NULL;
-
-int main(void) {
+static inline int cmd_sleep(char *str, uint32_t count) {
   char buffer[255];
 
-  stdout = UART4;
-
-  puts("Hello world");
+  uint32_t user_number = str_to_number(str, count);
 
   // Enable TIM6 clock
   rcc_enable_tim67(RCC, true);
@@ -73,7 +24,7 @@ int main(void) {
     break;
   default:
     puts("APB1 clock=Not supported");
-    goto hang;
+    goto err_out;
   }
 
   print("HSI frequency=");
@@ -81,7 +32,7 @@ int main(void) {
   switch (hsi_freq) {
   case -1:
     puts("Invalid value");
-    goto hang;
+    goto err_out;
   default:
     puts(number_to_str(hsi_freq, buffer, 255));
   }
@@ -94,7 +45,7 @@ int main(void) {
     break;
   case -1:
     puts("Invalid value");
-    goto hang;
+    goto err_out;
   default:
     hsi_freq = hsi_freq / mlahb_div;
     puts(number_to_str(mlahb_div, buffer, 255));
@@ -108,7 +59,7 @@ int main(void) {
     break;
   case -1:
     puts("Invalid value");
-    goto hang;
+    goto err_out;
   default:
     hsi_freq = hsi_freq / apb1_div;
     puts(number_to_str(apb1_div, buffer, 255));
@@ -146,7 +97,7 @@ int main(void) {
   if (timer_freq > (uint16_t)-1) {
     print("Invalid timer freq");
     puts(number_to_str(apb1_div, buffer, 255));
-    goto hang;
+    goto err_out;
   }
   tim_init(TIM6);
 
@@ -185,13 +136,12 @@ int main(void) {
   uint32_t last = tim_get_counter(TIM6);
   uint32_t now = tim_get_counter(TIM6);
   uint32_t miliseconds = 0;
-  uint32_t seconds = 0;
-  while (1) {
+  while (user_number) {
     if (now != last) {
       if (miliseconds % 1000 == 0) {
         print("Timer: ");
-        puts(number_to_str(seconds, buffer, 255));
-        seconds++;
+        puts(number_to_str(user_number, buffer, 255));
+        user_number--;
       }
 
       last = now;
@@ -203,7 +153,8 @@ int main(void) {
 
   return 0;
 
-hang:
-  while (1) {
-  }
+err_out:
+  return ERROR_INVALID_INPUT;
 }
+
+#endif
