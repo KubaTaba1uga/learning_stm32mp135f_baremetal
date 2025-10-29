@@ -21,6 +21,13 @@ enum GPIO_BANK {
   GPIO_BANK_I,
 };
 
+enum CLOCK {
+  CLOCK_HSI = 0,
+  CLOCK_HSE,
+  CLOCK_CSI,
+  CLOCK_PLL3,  
+};
+
 #define BITS_CLEAR(reg, max, bits) ((reg) &= ~((max) << (bits)))
 
 #define BITS_SET(reg, value, max, bits) ((reg) |= (((value) & (max)) << (bits)))

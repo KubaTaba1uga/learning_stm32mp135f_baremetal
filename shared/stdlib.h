@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#include "common.h"
 #include "uart.h"
 
 extern struct uart *stdout;

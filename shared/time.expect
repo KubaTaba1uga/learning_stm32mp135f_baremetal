@@ -1,0 +1,21 @@
+#!/usr/bin/expect -f
+# Measures time difference between "Timer:" lines in milliseconds
+
+set timeout -1
+set last_time 0
+
+spawn tio /dev/ttyACM0
+
+expect {
+    -re ".*Timer:.*\n" {
+        set now [clock milliseconds]
+        if {$last_time != 0} {
+            set diff [expr {$now - $last_time}]
+            puts "Time since last Timer: $diff ms"
+        } else {
+            puts "First Timer: detected"
+        }
+        set last_time $now
+        exp_continue
+    }
+}
