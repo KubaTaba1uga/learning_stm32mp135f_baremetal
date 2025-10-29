@@ -7,7 +7,9 @@ project('uart-poll-rx', 'c',
 
 tests = [
   {'src': 'test_rcc'},
-  {'src': 'test_uart'},  
+  {'src': 'test_uart'},
+  {'src': 'test_str'},
+  {'src': 'test_tim'},      
 ]
 
 unity_subproject = subproject('unity')

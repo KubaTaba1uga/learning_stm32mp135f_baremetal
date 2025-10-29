@@ -21,6 +21,7 @@ TOOLCHAIN_PATH = os.path.join(
     "bin",
     "arm-none-linux-gnueabihf-",
 )
+OPTEE_PATH = os.path.join(THIRD_PARTY_PATH, "optee-os")
 UBOOT_PATH = os.path.join(THIRD_PARTY_PATH, "u-boot")
 EXAMPLES_PATH = os.path.join(ROOT_PATH, "examples")
 SHARED_PATH = os.path.join(ROOT_PATH, "shared")
@@ -192,7 +193,7 @@ def build_uboot(c, is_ethernet_gadget=True):
 
 
 @task
-def build_optee(c):
+def build_optee(c, dt_file=None):
     _pr_info("Building optee os...")
 
     env = {
@@ -207,17 +208,36 @@ def build_optee(c):
         "CFG_IN_TREE_EARLY_TAS": "trusted_keys/f04a0fe7-1f5d-4b9b-abf7-619b85b4ce8c",
         "CFG_SCP_FIRMWARE": os.path.join(THIRD_PARTY_PATH, "scp-firmware"),
     }
-    try:
-        with c.cd(os.path.join(THIRD_PARTY_PATH, "optee-os")):
-            _run_make(c, "-j 4 all", env)
-            c.run(f"mkdir -p {BUILD_PATH}")
-            with c.cd(os.path.join("out", "arm-plat-stm32mp1", "core")):
-                c.run(f"cp tee.bin tee-raw.bin tee-*_v2.bin {BUILD_PATH}")
 
-    except Exception:
-        _pr_error("Building optee os failed")
-        raise
+    def _compile():
+      try:
+          with c.cd(os.path.join(THIRD_PARTY_PATH, "optee-os")):
 
+              _run_make(c, "-j 4 all", env)
+              c.run(f"mkdir -p {BUILD_PATH}")
+              with c.cd(os.path.join("out", "arm-plat-stm32mp1", "core")):
+                  c.run(f"cp tee.bin tee-raw.bin tee-*_v2.bin {BUILD_PATH}")
+
+      except Exception:
+          _pr_error("Building optee os failed")
+          raise
+    
+    if dt_file:
+        env["CFG_EMBED_DTB"]="y"
+        env["CFG_STM32MP13"]="y"
+        env["CFG_DRAM_SIZE"]="0x20000000" # Without this config optee sets 1GB ram and we crash
+                                          #  cause optee expect it's code elswhere.
+        env["CFG_EMBED_DTB_SOURCE_FILE"]=os.path.basename(dt_file)
+        with open(dt_file, "rb") as src:
+            with open(
+                    os.path.join(OPTEE_PATH,"core", "arch", "arm", "dts",env["CFG_EMBED_DTB_SOURCE_FILE"]), "wb"
+            ) as dst:
+                dst.write(src.read())
+                
+        _compile()
+    else:
+        _compile()
+    
     _pr_info("Building optee os completed")
 
 
@@ -266,14 +286,17 @@ def build_tfa(c):
 
 
 @task
-def build(c, examples=True, example=None, tests=False):
+def build(c, examples=True, example=None, tests=True, boot=True):
     _pr_info("Building...")
     try:
-        if example is None:
-          build_optee(c)
+        if boot:
+          if os.path.exists((device_tree:=os.path.join(EXAMPLES_PATH, example, "dts", "stm32mp135f-dk-optee.dts"))):
+                build_optee(c, device_tree)
+          else:
+                build_optee(c)
           build_uboot(c)
           build_tfa(c)
-          
+                  
         if examples:
             examples_paths = os.listdir(EXAMPLES_PATH)
             if example:

@@ -1,7 +1,6 @@
 #ifndef RCC_H
 #define RCC_H
 
-#include <stdbool.h>
 #include <stdint.h>
 
 #include "common.h"
@@ -232,13 +231,11 @@ struct rcc {
 
 #define RCC ((struct rcc *)0x50000000U)
 
-
 static inline void rcc_enable_gpio(struct rcc *rcc, uint8_t bank) {
   BIT_SET(rcc->MP_NS_AHB4ENSETR, bank); // Enable bank
 }
 
-static inline void rcc_disable_gpio(struct rcc *rcc,
-                                         uint8_t bank) {
+static inline void rcc_disable_gpio(struct rcc *rcc, uint8_t bank) {
   BIT_CLEAR(rcc->MP_NS_AHB4ENCLRR, bank); // Disable bank
 }
 
@@ -251,8 +248,8 @@ enum {
   RCC_UART_SRC_HSE = 0x5,
 };
 
-static inline void
-rcc_set_src_usart12(struct rcc *rcc, uint8_t src, bool is_usart1) {
+static inline void rcc_set_src_usart12(struct rcc *rcc, uint8_t src,
+                                       bool is_usart1) {
   uint8_t shift;
   if (is_usart1) {
     shift = 0;
@@ -270,8 +267,8 @@ static inline void rcc_enable_usart12(struct rcc *rcc, bool is_usart1) {
   } else {
     shift = 1;
   }
-  
-  BIT_SET(rcc->MP_APB6ENSETR,  shift);
+
+  BIT_SET(rcc->MP_APB6ENSETR, shift);
 }
 
 static inline void rcc_disable_usart12(struct rcc *rcc, bool is_usart1) {
@@ -281,8 +278,91 @@ static inline void rcc_disable_usart12(struct rcc *rcc, bool is_usart1) {
   } else {
     shift = 1;
   }
-  
-  BIT_SET(rcc->MP_APB6ENCLRR,  shift);
+
+  BIT_SET(rcc->MP_APB6ENCLRR, shift);
+}
+
+static inline void rcc_enable_tim67(struct rcc *rcc, bool is_tim6) {
+  uint8_t shift;
+  if (is_tim6) {
+    shift = 4;
+  } else {
+    shift = 5;
+  }
+
+  BIT_SET(rcc->MP_APB1ENSETR, shift);
+}
+
+static inline uint32_t rcc_get_mlahb_div(struct rcc *rcc) {
+  switch (RCC->MLAHBDIVR & 0b1111) {
+  case 0:
+    return 0;
+  case 0x1:
+    return 2;
+  case 0x2:
+    return 4;
+  case 0x3:
+    return 8;
+  case 0x4:
+    return 16;
+  case 0x5:
+    return 32;
+  case 0x6:
+    return 64;
+  case 0x7:
+    return 128;
+  case 0x8:
+    return 256;
+  default:
+    return -1;
+  }
+}
+
+static inline enum CLOCK rcc_get_mlahb_clk(struct rcc *rcc) {
+  switch (RCC->MSSCKSELR & 0b11) {
+  case 0:
+    return CLOCK_HSI;
+  case 0x1:
+    return CLOCK_HSE;
+  case 0x2:
+    return CLOCK_CSI;
+  case 0x3:
+    return CLOCK_PLL3;
+  default:
+    return -1;
+  }
+}
+
+static inline uint32_t rcc_get_hsi_frq(struct rcc *rcc) {
+  switch (RCC->HSICFGR & 0b11) {
+  case 0:
+    return 64000000;
+  case 0x1:
+    return 32000000;
+  case 0x2:
+    return 16000000;
+  case 0x3:
+    return 8000000;
+  default:
+    return -1;
+  }
+}
+
+static inline uint32_t rcc_get_apb1_div(struct rcc *rcc) {
+  switch (rcc->APB1DIVR & 0b111) {
+  case 0:
+    return 0;
+  case 0x1:
+    return 2;
+  case 0x2:
+    return 4;
+  case 0x3:
+    return 8;
+  case 0x4:
+    return 16;
+  default:
+    return -1;
+  }
 }
 
 #endif
