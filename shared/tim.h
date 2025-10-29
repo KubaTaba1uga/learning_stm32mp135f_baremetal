@@ -52,7 +52,7 @@ static inline void tim_enable_normal_mode(struct tim *tim) {
   It divide bus frequency by prescaler value before passing it to the counter.
 */
 static inline void tim_enable_counter_mode(struct tim *tim) {
-  BIT_SET(tim->EGR, 0);
+  BIT_SET(tim->EGR, 0); // Setting EGR ensures all regs are populated
     
   tim->CR1 = (1U);
 }

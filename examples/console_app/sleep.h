@@ -83,16 +83,10 @@ static inline int cmd_sleep(char *str, uint32_t count) {
       goto err_out;
     }
 
-    uint32_t i = 1000;
-    while (i--) {
-      (void)i;
-    }
-
     tim_init(TIM6);
     tim_set_prescaler(TIM6, timer_freq);
     tim_enable_counter_mode(TIM6);
   }
-
   { // Count seconds
     uint32_t last = tim_get_counter(TIM6);
     uint32_t now = tim_get_counter(TIM6);
