@@ -291,6 +291,10 @@ static inline void rcc_enable_tim67(struct rcc *rcc, bool is_tim6) {
   }
 
   BIT_SET(rcc->MP_APB1ENSETR, shift);
+
+  while (!(rcc->MP_APB1ENSETR & (1U << shift))){
+    (void)rcc;
+    }
 }
 
 static inline uint32_t rcc_get_mlahb_div(struct rcc *rcc) {

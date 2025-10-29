@@ -32,7 +32,7 @@ static inline void tim_init(struct tim *tim) {
 }
 
 static inline void tim_set_prescaler(struct tim *tim, uint16_t prescaler) {
-  tim->PSC |= prescaler & 0xFFFF;
+  tim->PSC = prescaler & 0xFFFF;  
 }
 
 static inline uint16_t tim_get_prescaler(struct tim *tim) {
@@ -51,7 +51,11 @@ static inline void tim_enable_normal_mode(struct tim *tim) {
   Counter mode care about prescaler.
   It divide bus frequency by prescaler value before passing it to the counter.
 */
-static inline void tim_enable_counter_mode(struct tim *tim) { tim->CR1 = (1U); }
+static inline void tim_enable_counter_mode(struct tim *tim) {
+  BIT_SET(tim->EGR, 0);
+    
+  tim->CR1 = (1U);
+}
 
 static inline uint32_t tim_get_counter(struct tim *tim) {
   return tim->CNT & 0xFFFF;
