@@ -16,4 +16,3 @@ void test_cli() {
   TEST_ASSERT_EQUAL_STRING("add_sth", argv[1]);
   TEST_ASSERT_EQUAL_STRING("-d", argv[2]);
 };
-

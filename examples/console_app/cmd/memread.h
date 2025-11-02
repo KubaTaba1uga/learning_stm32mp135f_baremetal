@@ -27,7 +27,7 @@ static inline int cmd_memread(int argc, char *argv[]) {
 
       for (uint32_t flag = 0; flag < sizeof(flags) / sizeof(void *); flag++) {
         if (strlen(argv[i]) > 1 && argv[i][0] == flags[flag][0] &&
-            argv[i][1] == flags[flag][0]) {
+            argv[i][1] == flags[flag][1]) {
           is_flag[flag] = true;
         };
       }
@@ -47,22 +47,9 @@ static inline int cmd_memread(int argc, char *argv[]) {
 
   { // Read memory
     addr_val = hex_to_number(digits, strlen(digits));
-    if (addr_val == -1){
-      puts("Cannot convert str to number.");
-      return ERROR_INVALID_INPUT;      
+    if (addr_val == -1) {
+      return ERROR_INVALID_INPUT;
     }
-    /* addr_val = strlen(digits); */
-    result = hex_to_str(addr_val, buffer, sizeof(buffer) / sizeof(char));
-
-    puts(digits);
-    puts(result);
-
-    
-    if (addr_val != 0xC0300000) {
-      puts("ERROR");
-      return -1;
-    }
-
 
     mem_val = *((uint32_t *)addr_val);
 

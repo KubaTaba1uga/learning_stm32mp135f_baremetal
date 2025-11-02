@@ -68,13 +68,9 @@ static inline uint32_t str_to_number(char *buffer, uint32_t buffer_len) {
     if (buffer[i] >= 48 && buffer[i] <= 57) {
       if (!addr_str_start) {
         addr_str_start = buffer + i;
+      } else {
+        addr_str_end = buffer + i;
       }
-      continue;
-    }
-
-    if (addr_str_start) {
-      addr_str_end = buffer + i;
-      break;
     }
   }
 
@@ -82,13 +78,15 @@ static inline uint32_t str_to_number(char *buffer, uint32_t buffer_len) {
     return -1;
   }
 
-  for (uint32_t i = 1; addr_str_start != addr_str_end--; i *= 10) {
+  for (uint32_t i = 1; (addr_str_start -1) != addr_str_end; i *= 10) {
     uint32_t val = *addr_str_end - 48;
     if (i > 1) {
       addr_val += val * i;
     } else {
       addr_val += val;
     }
+
+    addr_str_end--;
   }
 
   return addr_val;
@@ -100,20 +98,18 @@ static inline uint32_t hex_to_number(char *buffer, uint32_t buffer_len) {
   uint32_t addr_val = 0;
 
   for (uint32_t i = 0; i < buffer_len; i++) {
-    if ((buffer[i] >= 48 && buffer[i] <= 57) ||
-        (buffer[i] >= 65 && buffer[i] <= 70)) {
+    if ((buffer[i] >= '0' && buffer[i] <= '9') ||
+        (buffer[i] >= 'A' && buffer[i] <= 'F')) {
       if (buffer[i] != '0' && !addr_str_start) {
         addr_str_start = buffer + i;
       }
-      
+
       if (addr_str_start) {
         addr_str_end = buffer + i;
       }
     }
   }
 
-
-  
   if (!addr_str_start || !addr_str_end) {
     return -1;
   }

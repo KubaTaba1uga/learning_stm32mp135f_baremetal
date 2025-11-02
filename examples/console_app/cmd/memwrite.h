@@ -8,26 +8,23 @@
 
 static inline bool __cmd_memwrite_is_valid_hex(char *str);
 
-static inline int cmd_memwrite(char *str, uint32_t count) {
-  bool is_space = false;
+static inline int cmd_memwrite(int argc, char *argv[]) {
   char *value = NULL;
   char *addr = NULL;
 
   { // Populate data
-    for (uint32_t i = 0; i < count; i++) {
-      if (!addr && i >= 2 && str[i - 2] == '0' && str[i - 1] == 'x') {
-        addr = str + i;
-      } else if (addr && str[i] == ' ') {
-        is_space = true;
-        str[i] = 0;
-      } else if (addr && !value && is_space && isdigit(str[i])) {
-        value = str + i;
-      } else if (str[i] == '\r' || str[i] == '\n') {
-        str[i] = 0;
+    for (uint32_t i = 0; i < argc; i++) {
+      if (strlen(argv[i]) >= 2 && argv[i][0] == '0' && argv[i][1] == 'x') {
+        if (!addr) {
+          addr = argv[i];
+        } else if (!value) {
+          value = argv[i];
+        }
+
       }
     }
   }
-
+  
   { // Validate data
     if (!__cmd_memwrite_is_valid_hex(addr) ||
         !__cmd_memwrite_is_valid_hex(value)) {
@@ -39,8 +36,8 @@ static inline int cmd_memwrite(char *str, uint32_t count) {
   uint32_t mem_value;
 
   { // Convert numbers
-    mem_addr = hex_to_number(addr, count);
-    mem_value = hex_to_number(value, count);
+    mem_addr = hex_to_number(addr, strlen(addr));
+    mem_value = hex_to_number(value, strlen(value));
   }
 
   { // Write value to memory
@@ -64,6 +61,8 @@ static inline bool __cmd_memwrite_is_valid_hex(char *str) {
     return false;
   }
 
+  puts(str);
+  
   for (char *digits_cp = str + 2; *digits_cp != 0; digits_cp++) {
     if (islower(*digits_cp)) {
       puts("You have to use uppercase letters in memory address.");

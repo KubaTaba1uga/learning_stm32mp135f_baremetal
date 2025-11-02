@@ -9,10 +9,16 @@
 #include "string.h"
 #include "tim.h"
 
-static inline int cmd_sleep(char *str, uint32_t count) {
+static inline int cmd_sleep(int argc, char *argv[]) {
   char buffer[255];
 
-  uint32_t user_number = str_to_number(str, count) + 1;
+  if (argc < 2) {
+    puts("You have to provide number of seconds.");
+    puts("For example: sleep 10");
+    return ERROR_INVALID_INPUT;
+  }
+
+  uint32_t user_number = str_to_number(argv[1], strlen(argv[1])) + 1;
 
   { // Configure TIM6
     rcc_enable_tim67(RCC, true);
