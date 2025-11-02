@@ -5,6 +5,7 @@
 .extern main
 .extern _STACK_START_
 .arm
+.arch_extension sec        @ enables SMC instruction
 
 _Reset:
     cpsid   if                   @ Disable IRQ and FIQ

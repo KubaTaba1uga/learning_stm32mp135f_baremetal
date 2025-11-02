@@ -4,6 +4,7 @@
 #include "cmd/help.h"
 #include "cmd/memread.h"
 #include "cmd/memwrite.h"
+#include "cmd/reboot.h"
 #include "cmd/sleep.h"
 #include "common.h"
 #include "stdlib.h"
@@ -76,8 +77,9 @@ static inline int cli_run_cmd(char *str, uint32_t count) {
     {.id = "help", .main = cmd_help},
     {.id = "memread", .main = cmd_memread},
     {.id = "memwrite", .main = cmd_memwrite},
-      {.id = "sleep", .main = cmd_sleep},
-      /* {.id = "echo", .main = cmd_echo}, */
+    {.id = "sleep", .main = cmd_sleep},
+    {.id = "echo", .main = cmd_echo},
+    {.id = "reboot", .main = cmd_reboot},
   };
 
   for (uint32_t i = 0; i < sizeof(cmds) / sizeof(struct cli_cmd); i++) {

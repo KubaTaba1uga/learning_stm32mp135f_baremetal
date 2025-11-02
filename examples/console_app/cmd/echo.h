@@ -5,10 +5,13 @@
 
 #include "stdlib.h"
 
-static inline int cmd_echo(char *str, uint32_t count) {
-  for (uint32_t i = 0; i < count && str[i]; i++) {
-    putchar(str[i]);
+static inline int cmd_echo(int argc, char *argv[]) {
+  for (uint32_t i = 1; i < argc; i++) {
+    print(argv[i]);
+    putchar(' ');
   }
+
+  puts("");
   
   return 0;
 }

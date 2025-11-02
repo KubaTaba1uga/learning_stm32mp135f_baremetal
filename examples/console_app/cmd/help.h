@@ -27,7 +27,14 @@ static inline int cmd_help(int argc, char *argv[]) {
       "\r\n"
       " - sleep <seconds>\r\n"
       "   Wait number of seconds.\r\n"
-      "   Seconds value must be represented as decimal number.\r\n";
+      "   Seconds value must be represented as decimal number.\r\n"
+      "\r\n"
+      " - echo\r\n"
+      "   Display a line of text.\r\n"
+      "\r\n"
+      " - reboot\r\n"
+      "   Restart a machine.\r\n"      
+      "\r\n";
 
   puts(help_string);
   return 0;
