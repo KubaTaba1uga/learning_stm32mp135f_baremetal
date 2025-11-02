@@ -91,4 +91,9 @@ void test_hex_str() {
   mystrcpy(buffer, "0xFFF");
   number = hex_to_number(buffer, 255);
   TEST_ASSERT_EQUAL(0xFFF, number);
+
+  mystrcpy(buffer, "0xC0300000");
+  number = hex_to_number(buffer, 255);
+  TEST_ASSERT_EQUAL(0xC0300000, number);
+  
 }

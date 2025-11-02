@@ -5,7 +5,7 @@
 
 #include "stdlib.h"
 
-static inline int cmd_help(char *str, uint32_t count) {
+static inline int cmd_help(int argc, char *argv[]) {
   const char *help_string =
       "Welcome to the console app example :)\r\n"
       "\r\n"

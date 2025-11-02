@@ -1,6 +1,7 @@
 #ifndef STRING_H
 #define STRING_H
 
+#include "stdlib.h"
 #include <common.h>
 
 static inline char *number_to_str(uint32_t number, char *buffer,
@@ -104,20 +105,20 @@ static inline uint32_t hex_to_number(char *buffer, uint32_t buffer_len) {
       if (buffer[i] != '0' && !addr_str_start) {
         addr_str_start = buffer + i;
       }
-      continue;
-    }
-
-    if (addr_str_start) {
-      addr_str_end = buffer + i;
-      break;
+      
+      if (addr_str_start) {
+        addr_str_end = buffer + i;
+      }
     }
   }
 
+
+  
   if (!addr_str_start || !addr_str_end) {
     return -1;
   }
 
-  for (uint32_t i = 1; addr_str_start != addr_str_end--; i *= 16) {
+  for (uint32_t i = 1; (addr_str_start - 1) != addr_str_end; i *= 16) {
     uint32_t val;
     if (*addr_str_end >= 48 && *addr_str_end <= 57) {
       val = *addr_str_end - 48;
@@ -130,6 +131,8 @@ static inline uint32_t hex_to_number(char *buffer, uint32_t buffer_len) {
     } else {
       addr_val += val;
     }
+
+    addr_str_end--;
   }
 
   return addr_val;

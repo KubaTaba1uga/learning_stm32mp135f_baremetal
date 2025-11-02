@@ -1,19 +1,21 @@
 #include <stdint.h>
 
+#include "cmd/echo.h"
+#include "cmd/help.h"
+#include "cmd/memread.h"
+#include "cmd/memwrite.h"
+#include "cmd/sleep.h"
 #include "common.h"
-#include "help.h"
-#include "memread.h"
-#include "memwrite.h"
 #include "stdlib.h"
-#include "sleep.h"
 
 struct cli_cmd {
   const char *id;
-  int (*main)(char *str, uint32_t count);
+  int (*main)(int argc, char *argv[]);
 };
 
 static inline char *cli_get_cmd(char *str, uint32_t count);
 static inline int cli_run_cmd(char *str, uint32_t count);
+void cli_prepare_args(char *str, uint32_t count, int *argc, char *argv[255]);
 
 void cli_run(void) {
   char buffer[255];
@@ -71,15 +73,20 @@ static inline char *cli_get_cmd(char *str, uint32_t count) {
 
 static inline int cli_run_cmd(char *str, uint32_t count) {
   struct cli_cmd cmds[] = {
-    {.id = "help", .main = cmd_help},
-    {.id = "memread", .main = cmd_memread},
-    {.id = "memwrite", .main = cmd_memwrite},
-    {.id = "sleep", .main = cmd_sleep},    
+      {.id = "help", .main = cmd_help}, {.id = "memread", .main = cmd_memread},
+      /* {.id = "memwrite", .main = cmd_memwrite}, */
+      /* {.id = "sleep", .main = cmd_sleep}, */
+      /* {.id = "echo", .main = cmd_echo}, */
   };
 
   for (uint32_t i = 0; i < sizeof(cmds) / sizeof(struct cli_cmd); i++) {
     if (strncmp(cmds[i].id, str, strlen(cmds[i].id)) == 0) {
-      return cmds[i].main(str, count);
+      char *argv[255];
+      int argc;
+
+      cli_prepare_args(str, count, &argc, argv);
+
+      return cmds[i].main(argc, argv);
     }
   }
 
@@ -88,4 +95,22 @@ static inline int cli_run_cmd(char *str, uint32_t count) {
   puts("Try `help`");
 
   return ERROR_NO_ENTRY;
+}
+
+void cli_prepare_args(char *str, uint32_t count, int *argc, char *argv[255]) {
+  *argc = 1;
+  argv[0] = str;
+
+  for (uint32_t i = 0; i < count && str[i]; i++) {
+    if (str[i] == '\r' || str[i] == '\n') {
+      str[i] = 0;
+      break;
+    }
+
+    if (str[i] == ' ') {
+      str[i] = 0;
+      argv[*argc] = str + i + 1;
+      *argc += 1;
+    }
+  }
 }

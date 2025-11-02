@@ -59,8 +59,9 @@ int strncmp(const char *lhs, const char *rhs, uint32_t count) {
 
 uint32_t strlen(const char *str) {
   uint32_t i = 0;
-  while (*str++) {
+  while (*str) {
     i++;
+    str++;
   }
 
   return i;

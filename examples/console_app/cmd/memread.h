@@ -3,32 +3,33 @@
 
 #include <stdint.h>
 
+#include "common.h"
 #include "stdlib.h"
 #include "string.h"
 
 static inline bool __cmd_memread_is_valid_hex(char *str);
 
-static inline int cmd_memread(char *str, uint32_t count) {
+static inline int cmd_memread(int argc, char *argv[]) {
   char *(*func[])(uint32_t value, char *str, uint32_t count) = {number_to_str};
   char *flags[sizeof(func) / sizeof(void *)] = {"-d"};
   bool is_flag[sizeof(func) / sizeof(void *)] = {false};
   char *digits = NULL;
 
-  { // Populate data
-    for (uint32_t i = 0; i < count; i++) {
-      if (i >= 2 && str[i - 2] == '0' && str[i - 1] == 'x') {
-        digits = str + i - 2;
-      }
+  if (argc < 1) {
+    return ERROR_INVALID_INPUT;
+  }
 
-      if (str[i] == '\r' || str[i] == '\n') {
-        str[i] = 0;
-      }
+  { // Populate data
+    for (uint32_t i = 1; i < argc; i++) {
+      if (strlen(argv[i]) > 2 && argv[i][0] == '0' && argv[i][1] == 'x') {
+        digits = argv[i];
+      };
 
       for (uint32_t flag = 0; flag < sizeof(flags) / sizeof(void *); flag++) {
-        if (i >= 1 && str[i] == flags[flag][1] &&
-            str[i - 1] == flags[flag][0]) {
+        if (strlen(argv[i]) > 1 && argv[i][0] == flags[flag][0] &&
+            argv[i][1] == flags[flag][0]) {
           is_flag[flag] = true;
-        }
+        };
       }
     }
   }
@@ -45,7 +46,24 @@ static inline int cmd_memread(char *str, uint32_t count) {
   char buffer[255];
 
   { // Read memory
-    addr_val = hex_to_number(str, count);
+    addr_val = hex_to_number(digits, strlen(digits));
+    if (addr_val == -1){
+      puts("Cannot convert str to number.");
+      return ERROR_INVALID_INPUT;      
+    }
+    /* addr_val = strlen(digits); */
+    result = hex_to_str(addr_val, buffer, sizeof(buffer) / sizeof(char));
+
+    puts(digits);
+    puts(result);
+
+    
+    if (addr_val != 0xC0300000) {
+      puts("ERROR");
+      return -1;
+    }
+
+
     mem_val = *((uint32_t *)addr_val);
 
     for (uint32_t flag = 0; flag < sizeof(flags) / sizeof(void *); flag++) {
@@ -71,20 +89,21 @@ static inline int cmd_memread(char *str, uint32_t count) {
 };
 
 static inline bool __cmd_memread_is_valid_hex(char *str) {
-  if (!str || strlen(str)<=2) {
+  uint32_t len = strlen(str);
+  if (!str || len <= 2) {
     puts("You have to provide a memory address and it's value.");
     puts("For example: memread 0xC0300000");
     return false;
   }
 
-  for (char *digits_cp = str + 2; *digits_cp != 0; digits_cp++) {
-    if (islower(*digits_cp)) {
+  for (uint32_t i = 2; i < len - 1; i++) {
+    if (islower(str[i])) {
       puts("You have to use uppercase letters in memory address.");
       puts("For example: memread 0xC0300000");
       return false;
     }
 
-    if (!isdigit(*digits_cp) && (*digits_cp < 'A' || *digits_cp > 'F')) {
+    if (!isdigit(str[i]) && (str[i] < 'A' || str[i] > 'F')) {
       puts("You have to use uppercase alphanumeric letters in memory "
            "address.");
       puts("For example: memread 0xC0300000");
