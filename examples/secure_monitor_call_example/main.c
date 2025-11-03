@@ -29,20 +29,24 @@ The return value of the function will be one of the versions:
 //
 #include <stdint.h>
 
-#include "common.h"
-#include "rcc.h"
+#include "smc.h"
 #include "stdlib.h"
 #include "string.h"
-#include "tim.h"
 #include "uart.h"
 
 struct uart *stdout = NULL;
 
 int main(void) {
-  /* char buffer[255]; */
-
   stdout = UART4;
-  
-  puts("Hello world");
+
+  print("PSCI version: ");
+
+  const char *psci_version = smc_get_psci_version();
+  if (psci_version) {
+    puts(psci_version);
+  } else {
+    puts("Unkown");
+  }
+
   return 0;
 }
