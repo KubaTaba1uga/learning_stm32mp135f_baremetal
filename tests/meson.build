@@ -6,11 +6,11 @@ project('tests', 'c',
 )
 
 tests = [
-  # {'src': 'test_rcc'},
-  # {'src': 'test_uart'},
-    {'src': 'test_str'},
-    {'src': 'test_tim'},
-    {'src': 'test_console_app', 'includes': ['../examples/console_app', '../examples/console_app/cmd'], 'files': ['../examples/console_app/cli.c']},    
+  {'src': 'test_rcc'},
+  {'src': 'test_uart'},
+  {'src': 'test_str'},
+  {'src': 'test_tim'},
+  {'src': 'test_console_app', 'includes': ['../examples/console_app', '../examples/console_app/cmd'], 'files': ['../examples/console_app/cli.c']},    
 ]
 
 unity_subproject = subproject('unity')

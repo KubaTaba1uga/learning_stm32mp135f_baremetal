@@ -1,7 +1,7 @@
 #ifndef TIM_H
 #define TIM_H
-#include "common.h"
 
+#include "common.h"
 #include <stdint.h>
 
 struct tim {
