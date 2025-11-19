@@ -1,8 +1,8 @@
-#ifndef STRING_H
-#define STRING_H
+#ifndef MYSTRING_H
+#define MYSTRING_H
 
-#include "stdlib.h"
 #include <common.h>
+#include "stdlib.h"
 
 static inline char *number_to_str(uint32_t number, char *buffer,
                                   uint32_t buffer_len) {
@@ -78,7 +78,7 @@ static inline uint32_t str_to_number(char *buffer, uint32_t buffer_len) {
     return -1;
   }
 
-  for (uint32_t i = 1; (addr_str_start -1) != addr_str_end; i *= 10) {
+  for (uint32_t i = 1; (addr_str_start - 1) != addr_str_end; i *= 10) {
     uint32_t val = *addr_str_end - 48;
     if (i > 1) {
       addr_val += val * i;

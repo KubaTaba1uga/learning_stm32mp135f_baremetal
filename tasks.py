@@ -310,14 +310,14 @@ def build(c, examples=True, example=None, tests=True, boot=True):
                     build_dir = os.path.join(BUILD_PATH, os.path.basename(path))
                     c.run(f"mkdir -p {build_dir}")
                     c.run(
-                        f"meson setup --wipe --cross-file {os.path.join(SHARED_PATH, 'armv7a-cross-compile-meson.txt')} {build_dir}"
+                        f"meson setup --cross-file {os.path.join(SHARED_PATH, 'armv7a-cross-compile-meson.txt')} {build_dir}"
                     )
                     c.run(
                         f"rm -f compile_commands.json && ln -s {os.path.join(build_dir, 'compile_commands.json')} compile_commands.json"
                     )
                     
                     
-                c.run(f"meson compile -C {build_dir}")
+                c.run(f"meson compile -v -C {build_dir}")
                     
                 if example is not None:
                     c.run(f"arm-none-eabi-objcopy -O binary {build_dir}/{path} {ROOT_PATH}/tftp/example.bin")
@@ -338,7 +338,7 @@ def build(c, examples=True, example=None, tests=True, boot=True):
                     f"rm -f compile_commands.json && ln -s {os.path.join(build_dir, 'compile_commands.json')} compile_commands.json"
                 )
                 
-            c.run(f"meson compile -C {build_dir}")            
+            c.run(f"meson compile -v -C {build_dir}")            
             _pr_info(f"Building tests completed")            
             
     except Exception:

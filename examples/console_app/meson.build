@@ -5,7 +5,7 @@ project('console-app', 'c',
   ],
 )
 
-src = files('startup.S', 'main.c', 'cli.c')
+src = files('startup.S', 'main.c', 'cli.c', '../../shared/stdlib.c')
 
 ldscript = join_paths(meson.current_source_dir(), 'script.ld')
 

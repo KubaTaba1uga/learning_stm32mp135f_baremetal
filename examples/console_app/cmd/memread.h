@@ -51,7 +51,7 @@ static inline int __cmd_memread(int argc, char *argv[]) {
       return ERROR_INVALID_INPUT;
     }
 
-    mem_val = *((uint32_t *)addr_val);
+    mem_val = *((uint32_t *)addr_val); 
 
     for (uint32_t flag = 0; flag < sizeof(flags) / sizeof(void *); flag++) {
       if (is_flag[flag]) {

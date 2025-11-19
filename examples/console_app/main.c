@@ -20,10 +20,10 @@
 #include "cli.h"
 #include "uart.h"
 
-struct uart *stdout;
+struct uart *mystdout;
 
 int main(void) {
-  stdout = UART4;
+  mystdout = UART4;
   
   cli_run();
 

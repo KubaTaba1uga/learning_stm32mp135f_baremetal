@@ -6,7 +6,10 @@
 
 static inline char *cli_get_cmd(char *str, uint32_t count);
 static inline int cli_run_cmd(char *str, uint32_t count);
-static inline void cli_prepare_args(char *str, uint32_t count, int *argc,
+#ifndef TESTS
+static inline
+#endif
+void cli_prepare_args(char *str, uint32_t count, int *argc,
                                     char *argv[255]);
 
 /*
@@ -94,7 +97,10 @@ static inline int cli_run_cmd(char *str, uint32_t count) {
 /*
   Populate argc and argv to mimic C stdlib main behaviour.
 */
-static inline void cli_prepare_args(char *str, uint32_t count, int *argc,
+#ifndef TESTS
+static inline
+#endif
+void cli_prepare_args(char *str, uint32_t count, int *argc,
                                     char *argv[255]) {
   *argc = 1;
   argv[0] = str;

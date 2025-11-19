@@ -10,7 +10,7 @@ tests = [
   {'src': 'test_uart'},
   {'src': 'test_str'},
   {'src': 'test_tim'},
-  {'src': 'test_console_app', 'includes': ['../examples/console_app', '../examples/console_app/cmd'], 'files': ['../examples/console_app/cli.c']},    
+  {'src': 'test_console_app', 'includes': ['../examples/console_app', '../examples/console_app/cmd'], 'files': ['../examples/console_app/cli.c']},
 ]
 
 unity_subproject = subproject('unity')
@@ -36,6 +36,7 @@ foreach test : tests
     sources: src_files,
     dependencies: unity_dependency,
     include_directories: include,
+    c_args: ['-DTESTS']
   )
 
   test(name, exe)

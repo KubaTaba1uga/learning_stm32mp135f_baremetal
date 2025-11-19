@@ -28,18 +28,18 @@ void test_decimal_str() {
   TEST_ASSERT_EQUAL_STRING_LEN("787878", result, 6);
 
   mystrcpy(buffer, "10");
-  uint32_t number = str_to_number(buffer, 255);
+  uint32_t number = str_to_number(buffer, 2);
   TEST_ASSERT_EQUAL(10, number);
 
   mystrcpy(buffer, "20");
-  number = str_to_number(buffer, 255);
+  number = str_to_number(buffer, 2);
   TEST_ASSERT_EQUAL(20, number);
 
   mystrcpy(buffer, "200");
-  number = str_to_number(buffer, 255);
+  number = str_to_number(buffer, 3);
   TEST_ASSERT_EQUAL(200, number);
   mystrcpy(buffer, "999");
-  number = str_to_number(buffer, 255);
+  number = str_to_number(buffer, 3);
   TEST_ASSERT_EQUAL(999, number);
 }
 
@@ -68,30 +68,30 @@ void test_hex_str() {
   TEST_ASSERT_EQUAL_STRING_LEN("0xFFF", result, 2 + 3);
 
   mystrcpy(buffer, "0x10");
-  uint32_t number = hex_to_number(buffer, 255);
+  uint32_t number = hex_to_number(buffer, 4);
   TEST_ASSERT_EQUAL(0x10, number);
 
   mystrcpy(buffer, "0x20");
-  number = hex_to_number(buffer, 255);
+  number = hex_to_number(buffer, 4);
   TEST_ASSERT_EQUAL(0x20, number);
 
   mystrcpy(buffer, "0x200");
-  number = hex_to_number(buffer, 255);
+  number = hex_to_number(buffer, 5);
   TEST_ASSERT_EQUAL(0x200, number);
 
   mystrcpy(buffer, "0x999");
-  number = hex_to_number(buffer, 255);
+  number = hex_to_number(buffer, 5);
   TEST_ASSERT_EQUAL(0x999, number);
 
   mystrcpy(buffer, "0xAA");
-  number = hex_to_number(buffer, 255);
+  number = hex_to_number(buffer, 4);
   TEST_ASSERT_EQUAL(0xAA, number);
 
   mystrcpy(buffer, "0xFFF");
-  number = hex_to_number(buffer, 255);
+  number = hex_to_number(buffer, 5);
   TEST_ASSERT_EQUAL(0xFFF, number);
 
   mystrcpy(buffer, "0xC0300000");
-  number = hex_to_number(buffer, 255);
+  number = hex_to_number(buffer, 10);
   TEST_ASSERT_EQUAL(0xC0300000, number);
 }

@@ -1,9 +1,11 @@
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 #include "unity.h"
 
 void cli_prepare_args(char *str, uint32_t count, int *argc, char *argv[255]);
+void print(char *str) { printf("%s", str); };
 
 void test_cli() {
   char args[] = "console_app add_sth -d";
