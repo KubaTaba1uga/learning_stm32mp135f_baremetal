@@ -13,7 +13,7 @@ extern int puts(const char *str);
 extern void print(char *str);
 extern char *gets(char *str, uint32_t count, bool echo);
 extern int strncmp(const char *lhs, const char *rhs, long unsigned int count);
-extern long unsigned int  strlen(const char *str);
+extern long unsigned int strlen(const char *str);
 extern int isdigit(int c);
 extern int islower(int c);
 extern int isupper(int c);

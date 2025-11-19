@@ -54,12 +54,12 @@ we need to use APB1DIV and TIMG1PRE.
 #include "tim.h"
 #include "uart.h"
 
-struct uart *stdout = NULL;
+void *mystdout;
 
 int main(void) {
   char buffer[255];
 
-  stdout = UART4;
+  mystdout = UART4;
 
   puts("Hello world");
 

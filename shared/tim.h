@@ -32,7 +32,7 @@ static inline void tim_init(struct tim *tim) {
 }
 
 static inline void tim_set_prescaler(struct tim *tim, uint16_t prescaler) {
-  tim->PSC = prescaler & 0xFFFF;  
+  tim->PSC |= prescaler & 0xFFFF;  
 }
 
 static inline uint16_t tim_get_prescaler(struct tim *tim) {

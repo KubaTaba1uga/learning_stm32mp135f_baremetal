@@ -38,9 +38,14 @@ void test_decimal_str() {
   mystrcpy(buffer, "200");
   number = str_to_number(buffer, 3);
   TEST_ASSERT_EQUAL(200, number);
+  
   mystrcpy(buffer, "999");
   number = str_to_number(buffer, 3);
   TEST_ASSERT_EQUAL(999, number);
+
+  mystrcpy(buffer, "1");
+  number = str_to_number(buffer, 1);
+  TEST_ASSERT_EQUAL(1, number);  
 }
 
 void test_hex_str() {

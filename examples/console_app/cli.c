@@ -9,8 +9,8 @@ static inline int cli_run_cmd(char *str, uint32_t count);
 #ifndef TESTS
 static inline
 #endif
-void cli_prepare_args(char *str, uint32_t count, int *argc,
-                                    char *argv[255]);
+    void
+    cli_prepare_args(char *str, uint32_t count, int *argc, char *argv[255]);
 
 /*
   Run shell.
@@ -87,9 +87,11 @@ static inline int cli_run_cmd(char *str, uint32_t count) {
     }
   }
 
-  print("Invalid command: ");
-  print(str);
-  puts("Try `help`");
+  if (strlen(str) > 2) {
+    print("Invalid command: ");
+    print(str);
+    puts("Try `help`");
+  }
 
   return ERROR_NO_ENTRY;
 }
@@ -100,8 +102,8 @@ static inline int cli_run_cmd(char *str, uint32_t count) {
 #ifndef TESTS
 static inline
 #endif
-void cli_prepare_args(char *str, uint32_t count, int *argc,
-                                    char *argv[255]) {
+    void
+    cli_prepare_args(char *str, uint32_t count, int *argc, char *argv[255]) {
   *argc = 1;
   argv[0] = str;
 

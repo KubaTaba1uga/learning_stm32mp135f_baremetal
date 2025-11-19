@@ -61,7 +61,7 @@ static inline char *hex_to_str(uint32_t number, char *buffer,
 
 static inline uint32_t str_to_number(char *buffer, uint32_t buffer_len) {
   char *addr_str_start = NULL;
-  char *addr_str_end = NULL;
+  char *addr_str_end = buffer + buffer_len -1;
   uint32_t addr_val = 0;
 
   for (uint32_t i = 0; i < buffer_len; i++) {
