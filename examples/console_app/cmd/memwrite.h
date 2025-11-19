@@ -8,7 +8,7 @@
 
 static inline bool __cmd_memwrite_is_valid_hex(char *str);
 
-static inline int cmd_memwrite(int argc, char *argv[]) {
+static inline int __cmd_memwrite(int argc, char *argv[]) {
   char *value = NULL;
   char *addr = NULL;
 

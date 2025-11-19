@@ -5,7 +5,7 @@
 
 #include "stdlib.h"
 
-static inline int cmd_echo(int argc, char *argv[]) {
+static inline int __cmd_echo(int argc, char *argv[]) {
   for (uint32_t i = 1; i < argc; i++) {
     print(argv[i]);
     putchar(' ');

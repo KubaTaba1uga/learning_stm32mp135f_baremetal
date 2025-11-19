@@ -9,7 +9,7 @@
 #include "string.h"
 #include "tim.h"
 
-static inline int cmd_sleep(int argc, char *argv[]) {
+static inline int __cmd_sleep(int argc, char *argv[]) {
   char buffer[255];
 
   if (argc < 2) {

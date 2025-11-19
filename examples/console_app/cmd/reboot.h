@@ -6,7 +6,7 @@
 #include "rcc.h"
 #include "stdlib.h"
 
-static inline int cmd_reboot(int argc, char *argv[]) {
+static inline int __cmd_reboot(int argc, char *argv[]) {
   // Bit 31 of RCC_BDCR is responsible for activating a restart.
   // To detect whether reset is secure only check out bit 25 of
   //   RCC_SECCFGR.

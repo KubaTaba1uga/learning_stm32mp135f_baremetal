@@ -9,7 +9,7 @@
 
 static inline bool __cmd_memread_is_valid_hex(char *str);
 
-static inline int cmd_memread(int argc, char *argv[]) {
+static inline int __cmd_memread(int argc, char *argv[]) {
   char *(*func[])(uint32_t value, char *str, uint32_t count) = {number_to_str};
   char *flags[sizeof(func) / sizeof(void *)] = {"-d"};
   bool is_flag[sizeof(func) / sizeof(void *)] = {false};

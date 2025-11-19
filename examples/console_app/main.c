@@ -11,9 +11,7 @@
   We are using UART4 because this is the uart used by tf-a/optee/uboot by
   default.
 
-  Implemented commands are:
-  - help
-    Show info how to use the console.
+  To show implemented commands run `help`.
 
 **************************************************************************/
 ///

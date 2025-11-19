@@ -1,23 +1,17 @@
 #include <stdint.h>
 
-#include "cmd/echo.h"
-#include "cmd/help.h"
-#include "cmd/memread.h"
-#include "cmd/memwrite.h"
-#include "cmd/reboot.h"
-#include "cmd/sleep.h"
+#include "cmd/cmd.h"
 #include "common.h"
 #include "stdlib.h"
 
-struct cli_cmd {
-  const char *id;
-  int (*main)(int argc, char *argv[]);
-};
-
 static inline char *cli_get_cmd(char *str, uint32_t count);
 static inline int cli_run_cmd(char *str, uint32_t count);
-void cli_prepare_args(char *str, uint32_t count, int *argc, char *argv[255]);
+static inline void cli_prepare_args(char *str, uint32_t count, int *argc,
+                                    char *argv[255]);
 
+/*
+  Run shell.
+*/
 void cli_run(void) {
   char buffer[255];
 
@@ -40,6 +34,9 @@ void cli_run(void) {
   }
 };
 
+/*
+  Get command from stdin.
+*/
 static inline char *cli_get_cmd(char *str, uint32_t count) {
   uint32_t max = count - 2;
   for (uint32_t i = 0; i < max; i++) {
@@ -72,24 +69,18 @@ static inline char *cli_get_cmd(char *str, uint32_t count) {
   return str;
 };
 
+/*
+  Run command in str.
+*/
 static inline int cli_run_cmd(char *str, uint32_t count) {
-  struct cli_cmd cmds[] = {
-    {.id = "help", .main = cmd_help},
-    {.id = "memread", .main = cmd_memread},
-    {.id = "memwrite", .main = cmd_memwrite},
-    {.id = "sleep", .main = cmd_sleep},
-    {.id = "echo", .main = cmd_echo},
-    {.id = "reboot", .main = cmd_reboot},
-  };
-
-  for (uint32_t i = 0; i < sizeof(cmds) / sizeof(struct cli_cmd); i++) {
-    if (strncmp(cmds[i].id, str, strlen(cmds[i].id)) == 0) {
+  for (uint32_t i = 0; i < sizeof(cmds) / sizeof(struct cmd *); i++) {
+    if (strncmp(cmds[i]->id, str, strlen(cmds[i]->id)) == 0) {
       char *argv[255];
       int argc;
 
       cli_prepare_args(str, count, &argc, argv);
 
-      return cmds[i].main(argc, argv);
+      return cmds[i]->main(argc, argv);
     }
   }
 
@@ -100,7 +91,11 @@ static inline int cli_run_cmd(char *str, uint32_t count) {
   return ERROR_NO_ENTRY;
 }
 
-void cli_prepare_args(char *str, uint32_t count, int *argc, char *argv[255]) {
+/*
+  Populate argc and argv to mimic C stdlib main behaviour.
+*/
+static inline void cli_prepare_args(char *str, uint32_t count, int *argc,
+                                    char *argv[255]) {
   *argc = 1;
   argv[0] = str;
 
