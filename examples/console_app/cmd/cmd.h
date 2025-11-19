@@ -6,6 +6,7 @@
 #include "memread.h"
 #include "memwrite.h"
 #include "reboot.h"
+#include "shutdown.h"
 #include "sleep.h"
 
 struct cmd {
@@ -45,8 +46,14 @@ static const struct cmd cmd_sleep = {
     .main = __cmd_sleep_main,
 };
 
+static const struct cmd cmd_shutdown = {
+    .id = "shutdown",
+    .main = __cmd_shutdown,
+};
+
 static const struct cmd *cmds[] = {
-    &cmd_help, &cmd_echo, &cmd_memread, &cmd_memwrite, &cmd_reboot, &cmd_sleep,
+    &cmd_help,   &cmd_echo,  &cmd_memread,  &cmd_memwrite,
+    &cmd_reboot, &cmd_sleep, &cmd_shutdown,
 };
 
 #endif // CMD_H

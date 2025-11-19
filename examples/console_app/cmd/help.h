@@ -33,8 +33,11 @@ static inline int __cmd_help(int argc, char *argv[]) {
       "   Display a line of text.\r\n"
       "\r\n"
       " - reboot\r\n"
-      "   Restart a machine.\r\n"      
-      "\r\n";
+      "   Restart a machine.\r\n"
+      "\r\n"
+      " - shutdown\r\n"
+      "   Poweroff a machine.\r\n"      
+      "\r\n"      ;
 
   puts(help_string);
   return 0;
