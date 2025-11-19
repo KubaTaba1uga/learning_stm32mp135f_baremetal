@@ -8,11 +8,7 @@
 #include "rcc.h"
 
 static inline int __cmd_shutdown(int argc, char *argv[]) {
-  // To shutdown CPU we need to put it in standby mode.
-  // Bit 31 of RCC_BDCR is responsible for activating a restart.
-  // To detect whether reset is secure only check out bit 25 of
-  //   RCC_SECCFGR.
-  // If reset is secure use SMC to perform shutdown.
+  // If shutdown is secure use SMC to perform shutdown.
   //   More info in optee-os/core/arch/arm/include/sm/psci.h.
 
   if (RCC->SECCFGR & (1U << 31)) {
