@@ -41,7 +41,8 @@ static const struct cmd cmd_reboot = {
 
 static const struct cmd cmd_sleep = {
     .id = "sleep",
-    .main = __cmd_sleep,
+    .init = __cmd_sleep_init,
+    .main = __cmd_sleep_main,
 };
 
 static const struct cmd *cmds[] = {

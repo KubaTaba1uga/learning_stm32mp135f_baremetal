@@ -24,6 +24,10 @@ struct uart *mystdout;
 
 int main(void) {
   mystdout = UART4;
+
+  if (cli_init() != 0) {
+    return 1;
+  }
   
   cli_run();
 

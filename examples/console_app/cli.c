@@ -13,6 +13,25 @@ static inline
     cli_prepare_args(char *str, uint32_t count, int *argc, char *argv[255]);
 
 /*
+  Initiate shell.
+*/
+int cli_init(void) {
+  int err;
+  for (uint32_t i = 0; i < sizeof(cmds) / sizeof(struct cmd *); i++) {
+    if (cmds[i]->init) {
+      err = cmds[i]->init();
+      if (err != 0) {
+        print("Failed to init: ");
+        puts(cmds[i]->id);
+        return err;
+      };
+    }
+  }
+
+  return 0;
+}
+
+/*
   Run shell.
 */
 void cli_run(void) {
@@ -77,7 +96,7 @@ static inline char *cli_get_cmd(char *str, uint32_t count) {
 */
 static inline int cli_run_cmd(char *str, uint32_t count) {
   for (uint32_t i = 0; i < sizeof(cmds) / sizeof(struct cmd *); i++) {
-    if (strncmp(cmds[i]->id, str, strlen(cmds[i]->id)) == 0) {
+    if (cmds[i]->main && strncmp(cmds[i]->id, str, strlen(cmds[i]->id)) == 0) {
       char *argv[255];
       int argc;
 
