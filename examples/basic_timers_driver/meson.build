@@ -5,7 +5,7 @@ project('basic_timers_driver', 'c',
   ],
 )
 
-src = files('startup.S', 'main.c')
+src = files('startup.S', 'main.c', '../../shared/stdlib.c')
 
 ldscript = join_paths(meson.current_source_dir(), 'script.ld')
 

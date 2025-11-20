@@ -1,5 +1,7 @@
 #ifndef TIM_H
 #define TIM_H
+
+#include "common.h"
 #include <stdint.h>
 
 struct tim {
@@ -30,7 +32,11 @@ static inline void tim_init(struct tim *tim) {
 }
 
 static inline void tim_set_prescaler(struct tim *tim, uint16_t prescaler) {
-  tim->PSC |= prescaler & 0xFFFF; // Prescaler is 16th bit field
+  tim->PSC |= prescaler & 0xFFFF;  
+}
+
+static inline uint16_t tim_get_prescaler(struct tim *tim) {
+  return tim->PSC & 0xFFFF;
 }
 
 /*
@@ -46,11 +52,31 @@ static inline void tim_enable_normal_mode(struct tim *tim) {
   It divide bus frequency by prescaler value before passing it to the counter.
 */
 static inline void tim_enable_counter_mode(struct tim *tim) {
+  BIT_SET(tim->EGR, 0); // Setting EGR ensures all regs are populated
+    
   tim->CR1 = (1U);
 }
 
-static inline uint32_t tim_get_counter(struct tim*tim){
+static inline uint32_t tim_get_counter(struct tim *tim) {
   return tim->CNT & 0xFFFF;
+}
+
+struct tim_status {
+  bool is_enabled;
+  bool is_update_enabled;
+  bool is_one_pulse_mode_enabled;
+  bool is_auto_reload_enabled;
+  uint16_t prescaler;
+};
+
+static inline struct tim_status tim_dump_status(struct tim *tim) {
+  return (struct tim_status){
+      .is_enabled = TIM6->CR1 & 0b1,
+      .is_update_enabled = TIM6->CR1 & (1U << 1),
+      .is_one_pulse_mode_enabled = TIM6->CR1 & (1U << 3),
+      .is_auto_reload_enabled = TIM6->CR1 & (1U << 7),
+      .prescaler = tim_get_prescaler(tim),
+  };
 }
 
 #endif // TIM_H

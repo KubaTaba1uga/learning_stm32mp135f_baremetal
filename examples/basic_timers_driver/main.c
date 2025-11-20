@@ -54,12 +54,12 @@ we need to use APB1DIV and TIMG1PRE.
 #include "tim.h"
 #include "uart.h"
 
-struct uart *stdout = NULL;
+void *mystdout;
 
 int main(void) {
   char buffer[255];
 
-  stdout = UART4;
+  mystdout = UART4;
 
   puts("Hello world");
 
@@ -153,32 +153,33 @@ int main(void) {
   tim_set_prescaler(TIM6, timer_freq);
   tim_enable_counter_mode(TIM6);
 
-  if (TIM6->CR1 & 0b1) {
+  struct tim_status tim6_dump = tim_dump_status(TIM6);
+  if (tim6_dump.is_enabled) {
     puts("TIM6=Enabled");
   } else {
     puts("TIM6=Disabled");
   }
 
-  if (TIM6->CR1 & (1U << 1)) {
+  if (tim6_dump.is_update_enabled) {
     puts("TIM6=Update diabled");
   } else {
     puts("TIM6=Update enabled");
   }
 
-  if (TIM6->CR1 & (1U << 3)) {
+  if (tim6_dump.is_one_pulse_mode_enabled) {
     puts("TIM6=one-pulse mode enabled");
   } else {
     puts("TIM6=one-pulse mode disabled");
   }
 
-  if (TIM6->CR1 & (1U << 7)) {
+  if (tim6_dump.is_auto_reload_enabled) {
     puts("TIM6=auto reaload enabled");
   } else {
     puts("TIM6=auto reaload disabled");
   }
 
   print("TIM6=Prescaler: ");
-  puts(number_to_str(TIM6->PSC & 0xFFFF, buffer, 255));
+  puts(number_to_str(tim6_dump.prescaler, buffer, 255));
 
   // Observe the counter
   uint32_t last = tim_get_counter(TIM6);
