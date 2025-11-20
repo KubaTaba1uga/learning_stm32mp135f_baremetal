@@ -37,6 +37,9 @@ static inline int __cmd_help(int argc, char *argv[]) {
       "\r\n"
       " - shutdown\r\n"
       "   Poweroff a machine.\r\n"
+      "\r\n"
+      " - version\r\n"
+      "   Print version of the console app.\r\n"
       "\r\n";
 
   puts(help_string);

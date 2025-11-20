@@ -3,6 +3,7 @@ project('console-app', 'c',
     'b_pie=false',
     'default_library=static',
   ],
+  version : '0.0.1',
 )
 
 src = files('startup.S', 'main.c', 'cli.c', '../../shared/stdlib.c')
@@ -16,4 +17,5 @@ executable('console_app', src,
   ],
   install: false,
   include_directories: include_directories('../../shared'),
+  c_args: ['-DVERSION="' + meson.project_version() + '"']		    
 )

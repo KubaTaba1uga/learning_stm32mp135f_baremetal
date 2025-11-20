@@ -8,6 +8,7 @@
 #include "reboot.h"
 #include "shutdown.h"
 #include "sleep.h"
+#include "version.h"
 
 struct cmd {
   const char *id;
@@ -51,9 +52,14 @@ static const struct cmd cmd_shutdown = {
     .main = __cmd_shutdown,
 };
 
+static const struct cmd cmd_version = {
+    .id = "version",
+    .main = __cmd_version,
+};
+
 static const struct cmd *cmds[] = {
     &cmd_help,   &cmd_echo,  &cmd_memread,  &cmd_memwrite,
-    &cmd_reboot, &cmd_sleep, &cmd_shutdown,
+    &cmd_reboot, &cmd_sleep, &cmd_shutdown,&cmd_version,
 };
 
 #endif // CMD_H
