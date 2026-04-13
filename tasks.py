@@ -26,6 +26,9 @@ EXAMPLES_PATH = os.path.join(ROOT_PATH, "examples")
 SHARED_PATH = os.path.join(ROOT_PATH, "shared")
 SRC_PATH = os.path.join(ROOT_PATH, "src")
 
+os.environ["PATH"] += f":{SRC_PATH}"
+print(os.environ["PATH"])
+os.environ["PATH"] = f"{os.path.join(ROOT_PATH, 'src')}:{os.environ['PATH']}"
 
 @task
 def install(c):
@@ -72,13 +75,12 @@ def build(c):
         c, ROOT_PATH, THIRD_PARTY_PATH, BUILD_PATH, TOOLCHAIN_PATH, SRC_PATH
     )
 
-    classes = list(PackageBuilder.__subclasses__())
+    classes = list(set(PackageBuilder.__subclasses__()))
     objs = list()
 
     while len(classes) != 0:
         PBuilder = classes.pop()
         build_deps(classes, objs, ctx, PBuilder)
-
         pbuilder = PBuilder(ctx)
         pbuilder.build()
         objs.append(pbuilder)
@@ -95,4 +97,5 @@ def build_deps(classes, objs, ctx, pbuilder):
             dep_obj.build()
             objs.append(dep_obj)
             classes.remove(dep_class)
+            
             

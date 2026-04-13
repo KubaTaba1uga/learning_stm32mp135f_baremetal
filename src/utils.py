@@ -71,24 +71,39 @@ def run_make(ctx, command, env):
     )
 
 def import_builder_modules(root_dir):
+    known = set()
+
     for current_path, dirnames, filenames in os.walk(root_dir):
-        # Filter out directories starting with . or _
+        # Skip dirs starting with . or _
         dirnames[:] = [d for d in dirnames if not d.startswith(('.', '_'))]
 
         if "builder.py" in filenames:
             file_path = os.path.join(current_path, "builder.py")
-            
-            module_name = os.path.relpath(file_path, root_dir) \
-                .replace(os.sep, ".") \
-                .rstrip(".py")
+
+            # Normalize path (handles symlinks, duplicates, etc.)
+            real_path = os.path.realpath(file_path)
+
+            if real_path in known:
+                pr_debug(f"Skipping already imported: {real_path}")
+                continue
+
+            known.add(real_path)
+
+            module_name = (
+                "src/" + os.path.relpath(file_path, root_dir)
+            ).replace(os.sep, ".").rstrip(".py")
 
             try:
-                spec = importlib.util.spec_from_file_location(module_name, file_path)
+                spec = importlib.util.spec_from_file_location(module_name, real_path)
                 module = importlib.util.module_from_spec(spec)
+
+                # Optional but recommended: register in sys.modules
+                import sys
+                sys.modules[module_name] = module
+
                 spec.loader.exec_module(module)
 
                 pr_debug(f"Imported: {module_name}")
 
             except Exception as e:
-                pr_warn(f"Failed to import {file_path}: {e}")
-    
+                pr_warn(f"Failed to import {real_path}: {e}")
