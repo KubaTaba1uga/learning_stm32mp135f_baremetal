@@ -49,6 +49,15 @@ If missing, create it:
 ❯ sudo mkdir -p /srv/tftp
 ```
 
+Example cofniguration:
+```
+# /etc/default/tftpd-hpa
+
+TFTP_USERNAME="tftp"
+TFTP_DIRECTORY="/srv/tftp/"
+TFTP_ADDRESS=":69"
+TFTP_OPTIONS="--secure"
+```
 ---
 
 ## 📄 3. Create a Test File
