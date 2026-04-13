@@ -26,9 +26,6 @@ EXAMPLES_PATH = os.path.join(ROOT_PATH, "examples")
 SHARED_PATH = os.path.join(ROOT_PATH, "shared")
 SRC_PATH = os.path.join(ROOT_PATH, "src")
 
-os.environ["PATH"] += f":{SRC_PATH}"
-print(os.environ["PATH"])
-os.environ["PATH"] = f"{os.path.join(ROOT_PATH, 'src')}:{os.environ['PATH']}"
 
 @task
 def install(c):
@@ -63,8 +60,6 @@ def install(c):
         pr_error(f"Error installing dependencies: {e}")
 
 
-
-
 @task
 def build(c):
     import_builder_modules(SRC_PATH)
@@ -88,7 +83,8 @@ def build(c):
     for pbuilder in objs:
         deps = [obj for obj in objs if obj.__class__ in pbuilder.dependencies]
         pbuilder.install(deps)
-        
+
+
 def build_deps(classes, objs, ctx, pbuilder):
     for dep_class in pbuilder.dependencies:
         if dep_class in classes:
@@ -97,5 +93,25 @@ def build_deps(classes, objs, ctx, pbuilder):
             dep_obj.build()
             objs.append(dep_obj)
             classes.remove(dep_class)
-            
-            
+
+
+@task
+def deploy_sdcard(c, dev="sda"):
+    if not os.path.exists("/dev/disk/by-partlabel/fsbl1"):
+        raise ValueError("No /dev/disk/by-partlabel/fsbl1")
+
+    if not os.path.exists("/dev/disk/by-partlabel/fsbl2"):
+        raise ValueError("No /dev/disk/by-partlabel/fsbl2")
+
+    if not os.path.exists("/dev/disk/by-partlabel/fip"):
+        raise ValueError("No /dev/disk/by-partlabel/fip")
+
+    with c.cd(BUILD_PATH):
+        c.run(
+            "sudo dd if=tf-a-stm32mp135f-dk.stm32 of=/dev/disk/by-partlabel/fsbl1 bs=1K conv=fsync"
+        )
+        c.run(
+            "sudo dd if=tf-a-stm32mp135f-dk.stm32 of=/dev/disk/by-partlabel/fsbl2 bs=1K conv=fsync"
+        )
+        c.run("sudo dd if=fip.bin of=/dev/disk/by-partlabel/fip bs=1K conv=fsync")
+    c.run("sudo sync")
