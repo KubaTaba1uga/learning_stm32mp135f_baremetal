@@ -72,12 +72,16 @@ def build(c):
 
     classes = list(set(PackageBuilder.__subclasses__()))
     objs = list()
-
+    
+    configs = load_config(classes)
+    
     while len(classes) != 0:
         PBuilder = classes.pop()
+        kwargs = configs[PBuilder]
+        print(f"{PBuilder.__module__=}")
         build_deps(classes, objs, ctx, PBuilder)
         pbuilder = PBuilder(ctx)
-        pbuilder.build()
+        pbuilder.build(**kwargs)
         objs.append(pbuilder)
 
     for pbuilder in objs:
@@ -94,7 +98,27 @@ def build_deps(classes, objs, ctx, pbuilder):
             objs.append(dep_obj)
             classes.remove(dep_class)
 
+def load_config(classes):
+    config = {}
 
+    with open("config", "r") as fp:
+        txt = fp.readlines()
+
+    for class_ in classes:
+        module_name = f"{class_.__module__}".split(".")[1]
+        config[class_] = class_config = {}        
+        
+        for line in txt:
+            key, value = line.split("=")
+            key, value = key.lower(), value.rstrip('\n')
+            
+            if key.startswith(module_name):
+                class_config[key.replace(f"{module_name}_", "")] = value
+
+    print(f"{config=}")
+    return config
+
+            
 @task
 def deploy_sdcard(c, dev="sda"):
     if not os.path.exists("/dev/disk/by-partlabel/fsbl1"):

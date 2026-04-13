@@ -9,9 +9,14 @@ from src.optee_os.builder import OpteePackageBuilder
 class TfaPackageBuilder(PackageCopyInstaller, PackageBuilder):
     dependencies = [UbootPackageBuilder, OpteePackageBuilder]
 
-    def build(self):
+    def build(self, **kwargs):
         pr_info("Building tf-a...")
 
+        TF_A_PATH = os.path.join(self.ctx.third_party_path, "tf-a")
+        
+        if kwargs.get("dt_files"):
+            self.ctx.c.run(f"cp {kwargs.get('dt_files')} {os.path.join(TF_A_PATH, 'fdts')}")
+            
         env = {
             "CROSS_COMPILE": self.ctx.toolchain_path,
             "CC": str(self.ctx.toolchain_path) + "gcc",
@@ -24,7 +29,7 @@ class TfaPackageBuilder(PackageCopyInstaller, PackageBuilder):
             "ARM_ARCH_MAJOR": "7",
             "ARCH": "aarch32",
             "PLAT": "stm32mp1",
-            "DTB_FILE_NAME": "stm32mp135f-dk.dtb",
+            "DTB_FILE_NAME": kwargs.get("dt") or "stm32mp135f-dk.dtb",
             "AARCH32_SP": "optee",
             "DEBUG": "1",
             "LOG_LEVEL": "30",
@@ -37,7 +42,7 @@ class TfaPackageBuilder(PackageCopyInstaller, PackageBuilder):
             "STM32MP_USB_PROGRAMMER": "1",
         }
         try:
-            with self.ctx.c.cd(os.path.join(self.ctx.third_party_path, "tf-a")):
+            with self.ctx.c.cd(TF_A_PATH):
                 run_make(self.ctx.c, "-j 4 all fip", env)
 
                 src_path = os.path.join(

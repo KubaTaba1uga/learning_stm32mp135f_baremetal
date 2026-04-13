@@ -1,0 +1,2 @@
+TF_A_DT_FILES=boards/stm32mp135f_dk/tf-a/stm32mp13*dt*
+TF_A_DT=stm32mp135f-dk-mx.dtb
