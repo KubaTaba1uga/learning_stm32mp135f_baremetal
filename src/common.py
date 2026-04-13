@@ -2,6 +2,7 @@ import os
 from typing import Any, List
 from dataclasses import dataclass
 
+
 @dataclass
 class PackageCtx:
     c: Any
@@ -13,7 +14,7 @@ class PackageCtx:
 
 
 class PackageBuilder:
-    dependencies: List = [] # List[PackageBuilder]
+    dependencies: List = []  # List[PackageBuilder]
 
     def __init__(self, ctx: PackageCtx):
         self.ctx = ctx
@@ -31,7 +32,7 @@ class PackageCopyInstaller:
 
     def install(self, runetime_deps: List):
         for path in self.copy_paths:
-            if not os.path.exists(path):
-                raise RuntimeError(f"No file to install {path}")
-            self.ctx.c.run(f"cp {path} {self.ctx.build_path}")
-        
+            try:
+                self.ctx.c.run(f"cp {path} {self.ctx.build_path}")
+            except Exception as err:
+                raise RuntimeError(f"Cannot install {path}") from err
