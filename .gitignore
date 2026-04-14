@@ -9,3 +9,4 @@ build/*
 third_party/*
 tests/subprojects/unity
 .cache/
+third_party

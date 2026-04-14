@@ -1,2 +1,5 @@
 TF_A_DT_FILES=boards/stm32mp135f_dk/tf-a/stm32mp13*dt*
 TF_A_DT=stm32mp135f-dk-mx.dtb
+TF_A_LOG_LEVEL=10
+OPTEE_OS_DT_FILE=boards/stm32mp135f_dk/optee-os/stm32mp135f-dk-mx.dts
+OPTEE_OS_DEBUG=1

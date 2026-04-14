@@ -442,7 +442,6 @@
 };
 
 /* USER CODE BEGIN addons */
-
 &cpu0 {
 	cpu-supply = <&vddcpu>;
 };

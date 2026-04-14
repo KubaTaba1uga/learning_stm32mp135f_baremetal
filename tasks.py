@@ -2,6 +2,7 @@
 #                Imports                      #
 ###############################################
 import os
+import glob
 
 from invoke import task
 
@@ -77,27 +78,29 @@ def build(c):
     
     while len(classes) != 0:
         PBuilder = classes.pop()
-        kwargs = configs[PBuilder]
-        print(f"{PBuilder.__module__=}")
-        build_deps(classes, objs, ctx, PBuilder)
-        pbuilder = PBuilder(ctx)
-        pbuilder.build(**kwargs)
-        objs.append(pbuilder)
+        build_deps(classes, objs, configs, ctx, PBuilder)
 
-    for pbuilder in objs:
-        deps = [obj for obj in objs if obj.__class__ in pbuilder.dependencies]
-        pbuilder.install(deps)
-
-
-def build_deps(classes, objs, ctx, pbuilder):
+def build_deps(classes, objs, configs, ctx, pbuilder):
     for dep_class in pbuilder.dependencies:
         if dep_class in classes:
-            build_deps(classes, objs, ctx, dep_class)
-            dep_obj = dep_class(ctx)
-            dep_obj.build()
-            objs.append(dep_obj)
-            classes.remove(dep_class)
+            build_deps(classes, objs, configs, ctx, dep_class)
+            build_pkg(classes, objs, configs, ctx, dep_class)
+    build_pkg(classes, objs, configs, ctx, pbuilder)
 
+def build_pkg(classes, objs, configs, ctx, pbuilder):
+    obj = pbuilder(ctx)
+    kwargs = configs[pbuilder]            
+    obj.build(**kwargs)
+
+    deps = [obj for obj in objs if obj.__class__ in pbuilder.dependencies]
+    obj.install(deps)
+    
+    objs.append(obj)
+    try:
+        classes.remove(pbuilder)
+    except ValueError:
+        pass
+    
 def load_config(classes):
     config = {}
 
@@ -109,13 +112,15 @@ def load_config(classes):
         config[class_] = class_config = {}        
         
         for line in txt:
+            if "=" not in line or line.startswith("#"):
+                continue
+            
             key, value = line.split("=")
             key, value = key.lower(), value.rstrip('\n')
             
             if key.startswith(module_name):
                 class_config[key.replace(f"{module_name}_", "")] = value
 
-    print(f"{config=}")
     return config
 
             
@@ -132,10 +137,52 @@ def deploy_sdcard(c, dev="sda"):
 
     with c.cd(BUILD_PATH):
         c.run(
-            "sudo dd if=tf-a-stm32mp135f-dk.stm32 of=/dev/disk/by-partlabel/fsbl1 bs=1K conv=fsync"
+            "sudo dd if=tf-a-stm32mp135f-dk-mx.stm32 of=/dev/disk/by-partlabel/fsbl1 bs=1K conv=fsync"
+            # "sudo dd if=tf-a-stm32mp135f-dk.stm32 of=/dev/disk/by-partlabel/fsbl1 bs=1K conv=fsync"
         )
         c.run(
-            "sudo dd if=tf-a-stm32mp135f-dk.stm32 of=/dev/disk/by-partlabel/fsbl2 bs=1K conv=fsync"
+            "sudo dd if=tf-a-stm32mp135f-dk-mx.stm32 of=/dev/disk/by-partlabel/fsbl2 bs=1K conv=fsync"
+            # "sudo dd if=tf-a-stm32mp135f-dk.stm32 of=/dev/disk/by-partlabel/fsbl2 bs=1K conv=fsync"
         )
         c.run("sudo dd if=fip.bin of=/dev/disk/by-partlabel/fip bs=1K conv=fsync")
     c.run("sudo sync")
+
+@task
+def clean(c):
+    patterns = [
+      "build/*",
+      "*/*~*",
+      "*/#*",
+      "**/*~*",
+      "**/*#*",
+      "*~*",
+      "*#*",
+      "**/.#*"   
+    ]
+    
+    for pattern in patterns:
+        pr_info(f"Removing files matching pattern '{pattern}'")
+
+        # Use glob to find files recursively and remove each one
+        for path in glob.glob(pattern, recursive=True):
+            if os.path.isfile(path) or os.path.islink(path):
+                os.remove(path)
+                print(f"Removed file {path}")
+            elif os.path.isdir(path):
+                shutil.rmtree(path)
+                print(f"Removed directory {path}")
+
+    cmd = "git clean -fxd && git reset --hard"
+    try:
+        with c.cd("third_party/u-boot"):
+            c.run(cmd)
+        with c.cd("third_party/optee-os"):
+            c.run(cmd)
+        with c.cd("third_party/tf-a"):
+            c.run(cmd)
+    except Exception:
+        pr_error("Cleaning failed")
+        raise
+
+    pr_info("Clean up completed.")
+    

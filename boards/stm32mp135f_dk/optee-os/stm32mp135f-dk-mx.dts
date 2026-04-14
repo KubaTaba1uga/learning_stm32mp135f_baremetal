@@ -318,8 +318,16 @@
 		compatible = "st,stpmic1";
 		reg = <0x33>;
 		status = "okay";
+		
+		// Without this fix optee is crrashing
+		// FIX START
+		interrupts-extended = <&exti 8 IRQ_TYPE_EDGE_FALLING>;
+		wakeup-source;
+		// FIX END
+		
 		wakeup-parent = <&pwr_irq>;
 		st,wakeup-pin-number = <1>;
+		
 		st,pmic-it-id = <IT_PONKEY_F IT_PONKEY_R>;
 		st,notif-it-id = <0 2>;
 
